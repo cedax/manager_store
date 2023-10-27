@@ -1,0 +1,62 @@
+<link rel="stylesheet" type="text/css" href="/css/login.css">
+<div class="login-page bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="bg-white shadow rounded">
+                    <div class="row">
+                        <div class="col-md-7 pe-0">
+                            <div class="form-left h-100 py-5 px-5">
+                                <form action="/login" class="row g-4" method="post">
+                                    <div class="col-12">
+                                        <% if (req.query.error === '1') { %>
+                                            <div class="alert alert-danger">Credenciales incorrectas. Por favor, inténtalo de nuevo.</div>
+                                        <% } %>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label>Usuario<span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-text"><i class="bi bi-person-fill"></i></div>
+                                            <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label>Contraseña<span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
+                                            <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+                                            <label class="form-check-label" for="inlineFormCheck">Recordar credenciales</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <a href="#" class="float-end text-primary">¿Olvidaste tu contraseña?</a>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <a href="/register" class="float-end text-primary">¿No tienes una cuenta? Regístrate</a>
+                                        <button type="submit" class="btn btn-primary px-5 float-end mt-4">Entrar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-5 ps-0 d-none d-md-block">
+                            <div class="form-right h-100 bg-primary text-white text-center pt-5">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <h2 class="fs-1">Sistema de administración</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
