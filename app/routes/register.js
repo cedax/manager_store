@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const User = require('../models/user');
 
 router.get('/register', (req, res) => {
     if (req.isAuthenticated()) {
         res.redirect('/');
     } else {
-        res.render('register');
+        res.render('register', { title: 'Registro', layout: './layouts/shared', req })
     }
 });
 
