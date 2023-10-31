@@ -7,7 +7,7 @@ router.get('/register', (req, res) => {
     if (req.isAuthenticated()) {
         res.redirect('/');
     } else {
-        res.render('register', { title: 'Registro', layout: './layouts/shared', req })
+        res.render('register', { title: 'Registro', layout: './layouts/auth', req })
     }
 });
 

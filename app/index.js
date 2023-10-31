@@ -12,7 +12,7 @@ require('dotenv').config();
 app.use(express.static(__dirname + '/public'));
 
 app.use(expressLayouts)
-app.set('layout', './layouts/shared')
+//app.set('layout', './layouts/shared')
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'));
 
@@ -22,10 +22,8 @@ mongoose.connect(process.env.MONGODB_STRING_CONN, {
   useUnifiedTopology: true,
 });
 
-// Middlewares
-const {isLoggedIn} = require('./middlewares/authentication');
-
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(
   session({
@@ -60,9 +58,8 @@ app.get('/', (req, res) => {
   }
 });
 
-app.get('/dashboard', isLoggedIn, (req, res) => {
-  res.render('dashboard', { title: 'Dashboard', layout: './layouts/shared', req })
-});
+const dashboardRoutes = require('./routes/dashboard');
+app.use('/dashboard', dashboardRoutes);
 
 app.get('/logout', (req, res) => {
   req.logout(function (err) {
