@@ -73,4 +73,10 @@ router.post('/editar/:id', async (req, res) => {
     }
 });
 
+router.get('/json', async (req, res) => {
+    const productos = await Producto.find();
+    res.json(productos);
+});
+
+
 module.exports = router;

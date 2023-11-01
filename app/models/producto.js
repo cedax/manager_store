@@ -6,4 +6,6 @@ const productoSchema = new mongoose.Schema({
   existencia: Number,
 });
 
-module.exports = mongoose.model('Producto', productoSchema);
+const Producto = mongoose.model('Producto', productoSchema);
+
+module.exports = Producto;
