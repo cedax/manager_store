@@ -7,11 +7,20 @@
           <div class="row">
             <div class="col-md-7 pe-0">
               <div class="form-left h-100 py-5 px-5">
-                <form action="/register" class="row g-4" method="post">
+                <form action="/register" class="row g-4" method="post" id="register">
                   <div class="col-12">
                     <% if (req.query.error==='1' ) { %>
-                      <div class="alert alert-danger">Credenciales incorrectas. Por favor, inténtalo de nuevo.</div>
+                      <div class="alert alert-danger">Las contraseñas no coinciden</div>
                       <% } %>
+                        <% if (req.query.error==='2' ) { %>
+                          <div class="alert alert-danger">El usuario ya existe</div>
+                          <% } %>
+                            <% if (req.query.error==='3' ) { %>
+                              <div class="alert alert-danger">Error desconocido, contacte a soporte</div>
+                              <% } %>
+                              <% if (req.query.error==='4' ) { %>
+                                <div class="alert alert-danger">El captcha es incorrecto</div>
+                                <% } %>
                   </div>
 
                   <div class="col-12">
@@ -36,20 +45,22 @@
                     <label>Contraseña<span class="text-danger">*</span></label>
                     <div class="input-group">
                       <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
-                      <input type="password" class="form-control" placeholder="Enter Password" id="password-confirm"
-                        name="password" required>
+                      <input type="password" class="form-control" placeholder="Enter Password" id="passwordConfirm"
+                        name="passwordConfirm" required>
                     </div>
                   </div>
 
-                  <div class="col-sm-6">
-                    <a href="/login" class="float-end text-primary">¿Ya tienes una cuenta? Identificate</a>
-                  </div>
-
-                  <div class="col-sm-6">
-                  </div>
+                  <center>
+                    <div class="col-sm-12">
+                      <div class="g-recaptcha mb-3" data-sitekey="6Lf_E3IUAAAAAN-dPB1GSor--WmEe6VauXxiWrM3"
+                        name="recaptchaResponse"></div>
+                      <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
+                      <a href="/login" class="float-center text-primary">¿Ya tienes una cuenta? Identificate</a>
+                    </div>
+                  </center>
 
                   <div class="col-sm-12">
-                    <button type="submit" class="btn btn-primary px-5 float-end">Entrar</button>
+                    <button type="submit" class="btn btn-primary px-5 float-end">Registrarme</button>
                   </div>
                 </form>
               </div>
@@ -66,3 +77,19 @@
     </div>
   </div>
 </div>
+
+<script>
+  document.getElementById('register').addEventListener('submit', function (e) {
+    var recaptchaResponse = grecaptcha.getResponse();
+
+    if (recaptchaResponse.length == 0) {
+      alert('Por favor, completa el CAPTCHA.');
+      e.preventDefault();
+    }else {
+      document.getElementById('recaptchaResponse').value = recaptchaResponse;
+      document.forms[0].submit();
+    }
+  });
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
