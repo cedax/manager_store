@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productosRoutes = require('./productos');
+const copiaSeguridadRoutes = require('./copia-seguridad');
 // Middlewares
 const { isLoggedIn } = require('../../../middlewares/authentication');
 
@@ -9,5 +10,7 @@ router.get('/', isLoggedIn, (req, res) => {
 });
 
 router.use('/productos', productosRoutes);
+
+router.use('/copia-seguridad', copiaSeguridadRoutes);
 
 module.exports = router;

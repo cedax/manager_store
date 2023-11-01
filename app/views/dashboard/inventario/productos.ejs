@@ -1,17 +1,101 @@
-<!-- Header -->
 <%- include('../../partials/inventario/header.ejs') %>
-<!-- Main -->
-<main class="py-6 bg-surface-secondary">
-    <div class="container-fluid">
-        <h1>Registrar un Nuevo Producto</h1>
-        <form method="POST" action="/dashboard/inventario/nuevo">
-            <label for="nombre">Nombre del Producto:</label>
-            <input type="text" id="nombre" name="nombre" required><br>
-            <label for="precio">Precio del Producto:</label>
-            <input type="number" id="precio" name="precio" step="0.01" required><br>
-            <label for="existencia">Existencia del Producto:</label>
-            <input type="number" id="existencia" name="existencia" required><br>
-            <button type="submit">Registrar Producto</button>
-        </form>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Existencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% productos.forEach(producto=> { %>
+                            <tr>
+                                <td>
+                                    <%= producto.nombre %>
+                                </td>
+                                <td>
+                                    <%= producto.precio %>
+                                </td>
+                                <td>
+                                    <%= producto.existencia %>
+                                </td>
+                                <td>
+                                    <a href="/dashboard/inventario/productos/editar/<%= producto._id %>"
+                                        class="btn btn-primary">Editar</a>
+                                    <a href="/dashboard/inventario/productos/eliminar/<%= producto._id %>"
+                                        class="btn btn-danger">Eliminar</a>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</main>
+
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <div class="card shadow border-0 mb-7">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-12 mb-4 mb-sm-0">
+                            <h1 class="h2 mb-0 ls-tight" id="rg-prd">Registrar producto</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (req.query.prodNuevoSuccess) { %>
+                        <div class="alert alert-success mb-2" role="alert">
+                            Producto creado con éxito.
+                        </div>
+                        <% } %>
+                            <form method="POST" action="/dashboard/inventario/productos/nuevo">
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label">Nombre del Producto:</label>
+                                    <input type="text" id="nombre" name="nombre" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="precio" class="form-label">Precio del Producto:</label>
+                                    <input type="number" id="precio" name="precio" step="0.01" class="form-control"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="existencia" class="form-label">Existencia del Producto:</label>
+                                    <input type="number" id="existencia" name="existencia" class="form-control"
+                                        required>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-4">Registrar Producto</button>
+                            </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow border-0 mb-7">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-12 mb-4 mb-sm-0">
+                            <h1 class="h2 mb-0 ls-tight">Productos Agotados</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <% productosAgotados.forEach(producto=> { %>
+                            <li class="list-group-item">
+                                <%= producto.nombre %>
+                            </li>
+                            <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

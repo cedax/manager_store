@@ -2,15 +2,15 @@
 
 1. Submenú Productos
 
-   1. Dar de alta nuevos productos
-   2. Dar de baja productos
-   3. Editar producto
+   1. ~~Dar de alta nuevos productos~~
+   2. ~~Dar de baja productos~~
+   3. ~~Editar producto~~
    4. Agregar productos al carrito (Realizar pagos online con Paypal)
-   5. Mostrar la existencia de productos
-   6. Enlistar de forma automática los productos agotados
-1. Submenú Copia de seguridad
-   6. Guardar copias de seguridad de los inventarios y toda la información pertinente.
-1. Submenú Estadísticas
+   5. ~~Mostrar la existencia de productos~~
+   6. ~~Enlistar de forma automática los productos agotados~~
+2. Submenú Copia de seguridad
+   ~~6. Guardar copias de seguridad de los inventarios y toda la información pertinente.~~
+3. Submenú Estadísticas
    7. Clasificar los productos de acuerdo con sus ventas
    8. Mostrar sugerencias de productos según el consumo de los clientes
 

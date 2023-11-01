@@ -1,0 +1,22 @@
+<%- include('../../partials/inventario/header.ejs') %>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow border-0 mb-7">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-12 mb-4 mb-sm-0">
+                            <h1 class="h2 mb-0 ls-tight">Copia de Seguridad</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>Haga clic en el botón de abajo para guardar una copia de seguridad de todos los productos en formato CSV:</p>
+                    <form method="POST" action="/dashboard/inventario/copia-seguridad/crear">
+                        <button type="submit" class="btn btn-primary mt-4">Guardar Copia de Seguridad</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
