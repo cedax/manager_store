@@ -9,6 +9,8 @@
             $('#copiaSeguridad').addClass('active');
         } else if (currentSegment === 'estadisticas') {
             $('#estadisticas').addClass('active');
+        } else if (currentSegment === 'ventas') {
+            $('#ventas').addClass('active');
         }
     });
 </script>
@@ -19,6 +21,9 @@
             <ul class="nav nav-tabs mt-2 overflow-x border-0">
                 <li class="nav-item">
                     <a href="/dashboard/inventario/productos" id="productos" class="nav-link">Productos</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/dashboard/inventario/ventas" id="ventas" class="nav-link">Ventas</a>
                 </li>
                 <li class="nav-item">
                     <a href="/dashboard/inventario/copia-seguridad" id="copiaSeguridad" class="nav-link font-regular">Copia de seguridad</a>

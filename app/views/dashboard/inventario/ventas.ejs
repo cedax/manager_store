@@ -1,0 +1,234 @@
+<%- include('../../partials/inventario/header.ejs') %>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" type="text/css">
+
+<style>
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+        cursor: default;
+        color: #666 !important;
+        border: 1px solid transparent;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        box-sizing: border-box;
+        display: inline-block;
+        min-width: 1.5em;
+        padding: .5em 1em;
+        margin-left: 2px;
+        text-align: center;
+        text-decoration: none !important;
+        cursor: pointer;
+        color: inherit !important;
+        border: 1px solid transparent;
+        border-radius: 2px;
+        background: transparent;
+    }
+
+    #productTable_filter,
+    #productTable_paginate {
+        display: inline-block;
+        float: right;
+    }
+
+    #productTable_length,
+    #productTable_info {
+        display: inline-block;
+    }
+</style>
+
+<script>
+    $.get('/dashboard/inventario/productos/json', function (data) {
+        $('#productTable').DataTable({
+            data: data,
+            columns: [
+                { data: 'nombre', title: 'Nombre' },
+                { data: 'precio', title: 'Precio' },
+                {
+                    data: null,
+                    title: 'Acciones',
+                    render: function (data, type, row) {
+                        return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '"><i class="bi bi-cart-plus"></i></button>';
+                    }
+                }
+            ]
+        });
+    });
+
+    const cart = [];
+    let totalAmount = 0;
+
+    async function getProductInfo(productId) {
+        try {
+            const response = await fetch(`/dashboard/inventario/productos/json/${productId}`);
+            if (!response.ok) {
+                throw new Error('No se pudo obtener la información del producto');
+            }
+
+            const product = await response.json();
+            return product;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    function updateCartView() {
+        const cartList = $('#cart-list');
+        cartList.empty();
+
+        totalAmount = 0;
+
+        cart.forEach(product => {
+            cartList.append(
+                `<li>${product.name}  <b>$${product.price}</b></li>`
+            );
+
+            totalAmount += product.price;
+        });
+
+        $('#total-amount').html('<b>$' + totalAmount + '</b>');
+    }
+
+    $(document).on('click', '.add-to-cart', function () {
+        const productId = $(this).data('product-id');
+
+        getProductInfo(productId).then(function (productInfo) {
+            if (!productInfo) {
+                return;
+            }
+
+            cart.push({
+                id: productInfo._id,
+                name: productInfo.nombre,
+                price: productInfo.precio,
+            });
+
+            updateCartView();
+        }, function (error) {
+            console.error(error);
+        });
+    });
+
+    function showToast(message, backgroundColor = 'bg-primary', delay = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${backgroundColor}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.style.marginTop = '10px';
+
+        toast.innerHTML = `
+    <div class="toast-header">
+        <strong class="me-auto">Notificación</strong>
+        <small>Justo ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body text-white">
+        ${message}
+    </div>
+`;
+
+        const toastContainer = document.getElementById('toast-container');
+        toastContainer.appendChild(toast);
+
+        const toastInstance = new bootstrap.Toast(toast);
+
+        toastInstance.show();
+
+        setTimeout(() => {
+            toastInstance.hide();
+        }, delay);
+    }
+
+    function realizarPago() {
+        if (totalAmount == 0) {
+            showToast('No hay productos en el carrito', 'bg-danger');
+            return;
+        } else {
+            $('#paymentModal').modal('show');
+        }
+    }
+</script>
+
+<div id="toast-container" class="position-fixed top-0 end-0 p-3"></div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow border-0 mb-7">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-12 mb-4 mb-sm-0">
+                            <h1 class="h2 mb-0 ls-tight">Carrito de Compras</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul id="cart-list" class="list-group">
+                        <!-- Aquí se mostrarán los elementos del carrito -->
+                    </ul>
+                    <div class="d-flex justify-content-between mt-4">
+                        <strong>Total:</strong>
+                        <span id="total-amount">$0</span>
+                    </div>
+                    <div class="mt-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a onclick="realizarPago()" id="checkout-button" class="btn btn-primary w-100"
+                                    data-bs-toggle="modal">
+                                    <i class="bi bi-cash-stack"></i>
+                                </a>
+                            </div>
+                            <div class="col-md-6 mt-4 mt-md-0">
+                                <button id="clear-cart-button" class="btn btn-danger w-100"><i
+                                        class="bi bi-cart-x"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="table-responsive">
+                <table id="productTable" class="table table-striped"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para seleccionar la forma de pago -->
+<div class="modal fade" id="paymentModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Forma de Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-outline-primary me-3" id="pagoEfectivo">
+                        <i class="bi bi-cash"></i> Efectivo
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="pagoTarjeta">
+                        <i class="bi bi-credit-card"></i> Tarjeta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('#pagoEfectivo').click(function () {
+        console.log('Pago en efectivo');
+    });
+
+    $('#pagoTarjeta').click(function () {
+        window.location.href = `/dashboard/inventario/ventas/pay?total=${totalAmount}`;
+    });
+</script>
