@@ -18,8 +18,8 @@ const createPayment = (req, res) => {
             payment_method: 'paypal'
         },
         redirect_urls: {
-            return_url: 'http://localhost:3000/', // URL de retorno después del pago exitoso
-            cancel_url: 'http://localhost:3000/' // URL de retorno después de cancelar el pago
+            return_url: 'http://localhost:3000/dashboard/inventario/ventas/success-payment',
+            cancel_url: 'http://localhost:3000/dashboard/inventario/ventas/cancel'
         },
         transactions: [{
             amount: {
@@ -76,6 +76,13 @@ router.get('/', async (req, res) => {
         layout: './layouts/dashboard',
         req
     })
+});
+
+router.get('/success-payment', (req, res) => {
+    res.send(`
+        <h1>Pago exitoso</h1>
+        <button onclick="window.close();">Cerrar esta ventana</button>
+    `);
 });
 
 module.exports = router;

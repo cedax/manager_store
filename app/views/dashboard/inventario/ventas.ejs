@@ -122,15 +122,15 @@
         toast.style.marginTop = '10px';
 
         toast.innerHTML = `
-    <div class="toast-header">
-        <strong class="me-auto">Notificación</strong>
-        <small>Justo ahora</small>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body text-white">
-        ${message}
-    </div>
-`;
+            <div class="toast-header">
+                <strong class="me-auto">Notificación</strong>
+                <small>Justo ahora</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white">
+                ${message}
+            </div>
+        `;
 
         const toastContainer = document.getElementById('toast-container');
         toastContainer.appendChild(toast);
@@ -229,6 +229,6 @@
     });
 
     $('#pagoTarjeta').click(function () {
-        window.location.href = `/dashboard/inventario/ventas/pay?total=${totalAmount}`;
+        window.open(`/dashboard/inventario/ventas/pay?total=${totalAmount}`, '_blank');
     });
 </script>
