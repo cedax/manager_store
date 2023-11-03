@@ -4,7 +4,13 @@ const router = express.Router();
 const { isLoggedIn } = require('../../../middlewares/authentication');
 
 router.get('/', isLoggedIn, (req, res) => {
-    res.render('dashboard/otros/generar-pedidos', { title: 'Dashboard - Otros', layout: './layouts/dashboard', req })
+    res.redirect('/dashboard/otros/proveedores');
 });
+
+const routerproveedores = require('./proveedores');
+router.use('/proveedores', routerproveedores);
+
+const routerPedidos = require('./pedidos');
+router.use('/pedidos', routerPedidos);
 
 module.exports = router;

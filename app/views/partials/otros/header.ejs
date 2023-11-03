@@ -1,13 +1,26 @@
+<script>
+    $(document).ready(function() {
+        const currentPath = window.location.pathname;
+        const currentSegment = currentPath.substr(currentPath.lastIndexOf('/') + 1);
+        $('.nav-link').removeClass('active');
+        if (currentSegment === 'pedidos') {
+            $('#pedidos').addClass('active');
+        } else if (currentSegment === 'proveedores') {
+            $('#proveedores').addClass('active');
+        }
+    });
+</script>
+
 <header class="bg-surface-primary border-bottom">
     <div class="container-fluid">
         <div class="mb-npx">
             <!-- Nav -->
             <ul class="nav nav-tabs mt-2 overflow-x border-0">
                 <li class="nav-item ">
-                    <a href="#" class="nav-link active">Generar pedidos</a>
+                    <a href="/dashboard/otros/pedidos" id="pedidos" class="nav-link active">Generar pedidos</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link font-regular">Proovedores</a>
+                    <a href="/dashboard/otros/proveedores" id="proveedores" class="nav-link font-regular">Proveedores</a>
                 </li>
             </ul>
         </div>

@@ -5,7 +5,7 @@
    1. ~~Dar de alta nuevos productos~~
    2. ~~Dar de baja productos~~
    3. ~~Editar producto~~
-   4. Agregar productos al carrito (Realizar pagos online con Paypal)
+   4. ~~Agregar productos al carrito (Realizar pagos online con Paypal)~~
    5. ~~Mostrar la existencia de productos~~
    6. ~~Enlistar de forma automática los productos agotados~~
 2. Submenú Copia de seguridad
