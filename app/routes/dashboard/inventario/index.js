@@ -3,6 +3,8 @@ const router = express.Router();
 const productosRoutes = require('./productos');
 const copiaSeguridadRoutes = require('./copia-seguridad');
 const ventasRoutes = require('./ventas');
+const estadisticasRoutes = require('./estadisticas');
+
 // Middlewares
 const { isLoggedIn } = require('../../../middlewares/authentication');
 
@@ -15,5 +17,7 @@ router.use('/productos', productosRoutes);
 router.use('/copia-seguridad', copiaSeguridadRoutes);
 
 router.use('/ventas', ventasRoutes);
+
+router.use('/estadisticas', estadisticasRoutes);
 
 module.exports = router;

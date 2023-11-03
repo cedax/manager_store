@@ -1,6 +1,6 @@
 **Menú Inventario:**
 
-1. Submenú Productos
+1. ~~Submenú Productos~~
 
    1. ~~Dar de alta nuevos productos~~
    2. ~~Dar de baja productos~~
@@ -8,17 +8,17 @@
    4. ~~Agregar productos al carrito (Realizar pagos online con Paypal)~~
    5. ~~Mostrar la existencia de productos~~
    6. ~~Enlistar de forma automática los productos agotados~~
-2. Submenú Copia de seguridad
-   ~~6. Guardar copias de seguridad de los inventarios y toda la información pertinente.~~
-3. Submenú Estadísticas
+2. ~~Submenú Copia de seguridad
+   6. Guardar copias de seguridad de los inventarios y toda la información pertinente.~~
+3. ~~Submenú Estadísticas
    7. Clasificar los productos de acuerdo con sus ventas
-   8. Mostrar sugerencias de productos según el consumo de los clientes
+   8. Mostrar sugerencias de productos según el consumo de los clientes~~
 
 **Menú Deudores:**
 
-- Submenú Lista deudores
+- ~~Submenú Lista deudores
   10. Alertar cuando el deudor llegue al límite de pago
-  11. Alertar cuando el deudor llegue al límite de préstamo
+  11. Alertar cuando el deudor llegue al límite de préstamo~~
 
 **Menú Finanzas:**
 
@@ -33,11 +33,11 @@
 
 **Menú Otros:**
 
-- Submenú Generar pedidos
+- ~~Submenú Generar pedidos
   15. Generar pedidos
-  16. Cancelar pedido
-- Submenú Proveedores
-  16. Mostrar un catálogo de proveedores (con opciones editar, eliminar y agregar)
+  16. Cancelar pedido~~
+- ~~Submenú Proveedores
+  16. Mostrar un catálogo de proveedores (con opciones editar, eliminar y agregar)~~
 
 **Menú Usuarios:**
 
