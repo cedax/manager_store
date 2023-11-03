@@ -20,7 +20,7 @@ router.post('/registro', async (req, res) => {
 
         await nuevoCliente.save();
 
-        res.redirect('/dashboard/inventario/ventas?success=1');
+        res.redirect('/dashboard/inventario/ventas?success=1&clienteRegistrado='+nuevoCliente._id);
     } catch (error) {
         let clienteJsonString = JSON.stringify(clienteJson);
         if (error.code === 11000 && error.keyPattern.correo) {
@@ -30,6 +30,27 @@ router.post('/registro', async (req, res) => {
         } else {
             res.redirect('/dashboard/inventario/ventas?error=3&cliente=' + clienteJsonString);
         }
+    }
+});
+
+// Ruta para buscar clientes
+router.post('/buscar', async (req, res) => {
+    try {
+        const { nombre, correo, numero } = req.body;
+
+        // Define un objeto de búsqueda con los campos proporcionados
+        const filtroBusqueda = {};
+        if (nombre) filtroBusqueda.nombres = nombres;
+        if (correo) filtroBusqueda.correo = correo;
+        if (numero) filtroBusqueda.numero = numero;
+
+        // Utiliza Mongoose para buscar clientes que coincidan con el filtro
+        const resultados = await Cliente.find(filtroBusqueda);
+
+        res.json(resultados);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
     }
 });
 

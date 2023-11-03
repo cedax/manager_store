@@ -1,5 +1,173 @@
-const cart = [];
 let totalAmount = 0;
+let clienteID = '';
+
+function obtenerTicketPDF(ticketId) {
+    fetch(ticketId, {
+        method: 'GET',
+        responseType: 'blob'
+    })
+        .then(response => response.blob())
+        .then(blob => {
+            // Crear una URL para el blob
+            const pdfUrl = URL.createObjectURL(blob);
+
+            // Crear un enlace de descarga invisible
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = pdfUrl;
+            a.download = ticketId.split('/').pop();
+
+            // Adjuntar el enlace a la página y simular un clic
+            document.body.appendChild(a);
+            a.click();
+
+            // Limpiar el enlace y la URL
+            document.body.removeChild(a);
+            URL.revokeObjectURL(pdfUrl);
+        })
+        .catch(error => {
+            showToast('Error al obtener el PDF del ticket', 'bg-danger');
+        });
+}
+
+function enviarCompraAlServidor(SentCorreo) {
+    let clienteId = getCookie("clienteId");
+    // Obtener la información de la compra, como la lista de productos y el total
+    const cartData = getCookie("cart");
+    const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('$', ''));
+    const iva = parseFloat(document.getElementById('iva').textContent.replace('$', ''));
+    const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+
+    // Crear un objeto que contenga la información de la compra
+    const compraData = {
+        clientId: clienteId, // ID del cliente
+        productos: JSON.parse(cartData), // Lista de productos
+        subtotal: subtotal,
+        iva: iva,
+        total: total,
+        correo: SentCorreo
+    };
+
+    // Realizar una solicitud POST al servidor
+    fetch('/dashboard/inventario/ventas/efectivo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(compraData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ticket) {
+                obtenerTicketPDF(data.ticket);
+                if(SentCorreo){
+                    showToast('Compra y envio realizados con éxito, el ticket se descargo en tu equipo', 'bg-success', 5000);
+                }else {
+                    showToast('Compra realizada con éxito, el ticket se descargo en tu equipo', 'bg-success', 5000);
+                }
+            } else {
+                showToast('Error al generar el PDF de compra', 'bg-danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error al enviar la compra al servidor:', error);
+        });
+}
+
+function generarTicket() {
+    // Llenar la tabla con los productos del carrito
+    const resumenCompraBody = document.getElementById('resumenCompraBody');
+    let subtotal = 0;
+
+    let cartData = getCookie("cart");
+    cartData = cartData ? JSON.parse(cartData) : [];
+
+    cartData.forEach((product) => {
+        const row = document.createElement('tr');
+        const productName = document.createElement('td');
+        productName.textContent = product.name;
+        row.appendChild(productName);
+        const productPrice = document.createElement('td');
+        productPrice.textContent = `$${product.price}`;
+        row.appendChild(productPrice);
+        resumenCompraBody.appendChild(row);
+        subtotal += product.price;
+    });
+
+    // Calcular IVA y Total
+    const iva = parseFloat((subtotal * 0.16).toFixed(2));
+    const total = (parseFloat(subtotal) + parseFloat(iva)).toFixed(2);
+
+    // Mostrar Subtotal, IVA y Total
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('iva').textContent = `$${iva}`;
+    document.getElementById('total').textContent = `$${total}`;
+
+    $('#paymentModal').modal('hide');
+    $('#resumenCompraModal').modal('show');
+}
+
+$(document).ready(function () {
+    // Cuando se haga clic en el botón "Buscar"
+    $('#buscarClienteBtn').click(function (e) {
+        e.preventDefault(); // Evitar que se envíe el formulario
+
+        // Obtén los valores de los campos de búsqueda
+        const nombre = $('#bnombre').val();
+        const correo = $('#bcorreo').val();
+        const telefono = $('#btelefono').val();
+
+        // Envía una solicitud al servidor para buscar al cliente
+        $.ajax({
+            method: 'POST', // Utiliza el método adecuado (GET, POST, etc.) para tu servidor
+            url: '/dashboard/usuarios/cliente/buscar', // Reemplaza con tu endpoint
+            data: {
+                nombre: nombre,
+                correo: correo,
+                numero: telefono,
+            },
+            success: function (resultados) {
+                if (resultados.length === 0) {
+                    showToast('No se encontraron resultados', 'bg-warning');
+                    return;
+                }
+
+                // Limpia la lista de resultados
+                $('#listaResultados').empty();
+
+                // Muestra los resultados en el modal de resultados
+                resultados.forEach(function (cliente) {
+                    $('#listaResultados').append(
+                        `<div class="card mt-5">
+                        <div class="card-body">
+                            <h5 class="card-title">${cliente.nombres} ${cliente.apellidos}</h5>
+                            <p class="card-text">Correo: ${cliente.correo}</p>
+                            <p class="card-text">Número: ${cliente.numero}</p>
+                            <button class="btn btn-primary seleccionar-cliente mt-4" data-cliente-id="${cliente._id}">Seleccionar Cliente</button>
+                        </div>
+                    </div>
+                    `
+                    );
+                });
+
+                $('#resultadosClienteModal').modal('show');
+                $('#buscarClienteModal').modal('hide');
+            },
+            error: function (error) {
+                console.error(error);
+            },
+        });
+    });
+
+    // Cuando se haga clic en un botón de "Seleccionar Cliente"
+    $(document).on('click', '.seleccionar-cliente', function () {
+        const clienteId = $(this).data('cliente-id');
+        setCookie('clienteId', clienteId, 1);
+        $('#resultadosClienteModal').modal('hide');
+        $('#paymentModal').modal('show');
+    });
+});
+
 
 $.get('/dashboard/inventario/productos/json', function (data) {
     $('#productTable').DataTable({
@@ -77,7 +245,12 @@ function updateCartView(cart) {
         totalAmount += product.price;
     });
 
-    $('#total-amount').html('<b>$' + totalAmount + '</b>');
+    $('#subtotal-amount').html('<b>$' + totalAmount + '</b>');
+    const iva = (totalAmount * 0.16).toFixed(2);
+    $('#iva-amount').html('<b>$' + iva + '</b>');
+    const total = (parseFloat(totalAmount) + parseFloat(iva)).toFixed(2);
+    console.log(typeof total);
+    $('#total-amount').html('<b>$' + total + '</b>');
 }
 
 function addToCart(productId) {
@@ -173,7 +346,7 @@ $('#nuevoClienteModal').on('show.bs.modal', function (e) {
 });
 
 $('#pagoEfectivo').click(function () {
-    alert('Pago en efectivo');
+    generarTicket();
 });
 
 $('#pagoTarjeta').click(function () {
@@ -207,6 +380,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('rnumero').value = clienteData.numero;
     }
 
+    clienteID = urlParams.get('clienteRegistrado');
+
     if (errorParam === '1') {
         $('#nuevoClienteModal').modal('show');
         showToast('El correo ya esta registrado', 'bg-danger');
@@ -220,8 +395,34 @@ document.addEventListener('DOMContentLoaded', function () {
         showToast('Error desconocido, contacte a soporte. Codigo: VTS01', 'bg-danger');
     }
 
-    if (successParam === '1') {
-        showToast('Cliente registrado con éxito', 'bg-success');
-        $('#paymentModal').modal('show');
+    if (successParam == '1') {
+        if (urlParams.has('clienteRegistrado')) {
+            showToast('Cliente registrado con éxito', 'bg-success');
+            $('#paymentModal').modal('show');
+        }
     }
+
+    $('#otraFormaPago').click(function () {
+        $('#paymentModal').modal('show');
+        $('#resumenCompraModal').modal('hide');
+    });
+
+    $('#confirmarCompra').click(function () {
+        $('#confirmarCorreoModal').modal('show');
+        $('#resumenCompraModal').modal('hide');
+    });
+
+    document.getElementById('enviarCorreoSi').addEventListener('click', function () {
+        $('#confirmarCorreoModal').modal('hide');
+        enviarCompraAlServidor(clienteID, true);
+        deleteCookie('cart');
+        updateCartView([]);
+    });
+
+    document.getElementById('enviarCorreoNo').addEventListener('click', function () {
+        $('#confirmarCorreoModal').modal('hide');
+        enviarCompraAlServidor(clienteID, false);
+        deleteCookie('cart');
+        updateCartView([]);
+    });
 });

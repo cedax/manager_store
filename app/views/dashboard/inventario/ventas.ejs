@@ -17,9 +17,18 @@
                         <!-- Aquí se mostrarán los elementos del carrito -->
                     </ul>
                     <div class="d-flex justify-content-between mt-4">
+                        <strong>Subtotal:</strong>
+                        <span id="subtotal-amount">$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <strong>IVA:</strong>
+                        <span id="iva-amount">$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4">
                         <strong>Total:</strong>
                         <span id="total-amount">$0</span>
                     </div>
+
                     <div class="mt-4">
                         <div class="row">
                             <div class="col-md-6">
@@ -81,17 +90,27 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <button type="button" class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
+                    <div class="col-12">
+                        <button type="button"
+                            class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
                             data-bs-toggle="modal" data-bs-target="#buscarClienteModal">
                             <span>Cliente Registrado</span>
                             <i class="bi bi-person"></i>
                         </button>
                     </div>
-                    <div class="col-md-6">
-                        <button type="button" class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
+                    <div class="col-12 mt-4">
+                        <button type="button"
+                            class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
                             data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
                             <span>Nuevo Cliente</span>
+                            <i class="bi bi-person-plus"></i>
+                        </button>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="button"
+                            class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
+                            data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+                            <span>Sin registro</span>
                             <i class="bi bi-person-plus"></i>
                         </button>
                     </div>
@@ -112,7 +131,9 @@
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="mb-3">
+                    <p style="font-size: 15px;">Puede buscar al cliente por cualquiera de los siguientes parametros
+                    </p>
+                    <div class="mb-3 mt-3">
                         <label for="nombre">Nombre:</label>
                         <input type="text" class="form-control" id="bnombre" placeholder="Nombre del cliente">
                     </div>
@@ -124,8 +145,90 @@
                         <label for="telefono">Teléfono:</label>
                         <input type="text" class="form-control" id="btelefono" placeholder="Teléfono del cliente">
                     </div>
-                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    <button type="submit" class="btn btn-primary" id="buscarClienteBtn">Buscar</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal ticket de compra -->
+<div class="modal fade" id="resumenCompraModal" tabindex="-1" aria-labelledby="resumenCompraModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resumenCompraModalLabel">Resumen de Compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Aquí mostrarás los detalles de la compra -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resumenCompraBody">
+                        <!-- Aquí se generará la lista de productos -->
+                    </tbody>
+                </table>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>IVA (16%):</span>
+                    <span id="iva">$0.00</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total:</strong>
+                    <strong id="total">$0.00</strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="otraFormaPago">Seleccionar otra forma de
+                    pago</button>
+                <button type="button" class="btn btn-success" id="confirmarCompra">Confirmar compra</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar resultados de cliente -->
+<div class="modal fade" id="resultadosClienteModal" tabindex="-1" aria-labelledby="resultadosClienteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="resultadosClienteModalLabel">Resultados de la Búsqueda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="listaResultados" class="list-group">
+                    <!-- Aquí se mostrarán los resultados -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmarCorreoModal" tabindex="-1" aria-labelledby="confirmarCorreoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarCorreoModalLabel">Enviar PDF por correo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Deseas enviar el PDF del ticket por correo?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="enviarCorreoNo">No, solo cobrar</button>
+                <button type="button" class="btn btn-primary" id="enviarCorreoSi">Sí, enviar</button>
             </div>
         </div>
     </div>
