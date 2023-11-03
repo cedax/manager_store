@@ -54,6 +54,25 @@ router.post('/buscar', async (req, res) => {
     }
 });
 
+router.get('/correo/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const cliente = await Cliente.findById(userId);
+
+        if (!cliente) {
+            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+        }
+
+        res.json({ correo: cliente.correo });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+
 module.exports = router;
+
+
 
 

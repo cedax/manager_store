@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
 const Venta = require('../../../models/venta');
+const axios = require('axios');
 
 paypal.configure({
     mode: 'sandbox',
@@ -292,7 +293,7 @@ function ajustarPrecio(price) {
 }
 
 // Ruta de la solicitud POST para crear el ticket
-router.post('/efectivo', (req, res) => {
+router.post('/efectivo', async (req, res) => {
     const compraData = req.body; // Datos de la compra enviados desde el cliente
 
     // Obtén la fecha actual
@@ -344,39 +345,48 @@ router.post('/efectivo', (req, res) => {
     const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
 
     if (compraData.correo) {
-        const transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {
-                user: 'emortaa@gmail.com',
-                pass: 'ehnidoowqchzgjbo'
-            }
-        });
-
+        let client_id = compraData.clientId;
+        let correoCliente = ''
         try {
-            const email = 'lopez17081@gmail.com'
+            const response = await axios.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
+            correoCliente = response.data.correo
+        } catch (error) {
+            console.error('Error al obtener el correo del cliente:', error);
+            throw error;
+        }
 
-            const mailOptions = {
-                from: 'emortaa@gmail.com',
-                to: email,
-                subject: 'Recibo de compra',
-                text: 'Gracias por tu compra. Adjunto encontrarás el ticket.',
-                attachments: [{ path: urlDelServidor }]
-            };
-
-            // Envía el correo
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.error('Error al enviar el correo:', error);
-                    res.status(500).json({ error: 'Error al enviar el correo' });
-                } else {
-                    console.log('Correo enviado: ' + info.response);
+        if (correoCliente != '') {
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: 'emortaa@gmail.com',
+                    pass: 'ehnidoowqchzgjbo'
                 }
             });
-        } catch (error) {
-            console.error(error);
+
+            try {
+                const mailOptions = {
+                    from: 'emortaa@gmail.com',
+                    to: correoCliente,
+                    subject: 'Recibo de compra - No responder',
+                    text: 'Gracias por tu compra. Adjunto encontrarás el ticket.',
+                    attachments: [{ path: urlDelServidor }]
+                };
+
+                // Envía el correo
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        console.error('Error al enviar el correo:', error);
+                        res.status(500).json({ error: 'Error al enviar el correo' });
+                    } else {
+                        console.log('Correo enviado: ' + info.response);
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
-
     // Inserta la venta en MongoDB
     const nuevaVenta = new Venta({
         idCliente: compraData.clientId,

@@ -79,6 +79,8 @@ function generarTicket() {
     const resumenCompraBody = document.getElementById('resumenCompraBody');
     let subtotal = 0;
 
+    resumenCompraBody.innerHTML = '';
+
     let cartData = getCookie("cart");
     cartData = cartData ? JSON.parse(cartData) : [];
 
@@ -249,7 +251,7 @@ function updateCartView(cart) {
     const iva = (totalAmount * 0.16).toFixed(2);
     $('#iva-amount').html('<b>$' + iva + '</b>');
     const total = (parseFloat(totalAmount) + parseFloat(iva)).toFixed(2);
-    console.log(typeof total);
+    
     $('#total-amount').html('<b>$' + total + '</b>');
 }
 
@@ -414,14 +416,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('enviarCorreoSi').addEventListener('click', function () {
         $('#confirmarCorreoModal').modal('hide');
-        enviarCompraAlServidor(clienteID, true);
+        enviarCompraAlServidor(true);
         deleteCookie('cart');
         updateCartView([]);
     });
 
     document.getElementById('enviarCorreoNo').addEventListener('click', function () {
         $('#confirmarCorreoModal').modal('hide');
-        enviarCompraAlServidor(clienteID, false);
+        enviarCompraAlServidor(false);
         deleteCookie('cart');
         updateCartView([]);
     });
