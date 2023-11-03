@@ -74,7 +74,7 @@ function enviarCompraAlServidor(SentCorreo) {
         });
 }
 
-function generarTicket() {
+function generarTicket(efectivo) {
     // Llenar la tabla con los productos del carrito
     const resumenCompraBody = document.getElementById('resumenCompraBody');
     let subtotal = 0;
@@ -105,8 +105,12 @@ function generarTicket() {
     document.getElementById('iva').textContent = `$${iva}`;
     document.getElementById('total').textContent = `$${total}`;
 
-    $('#paymentModal').modal('hide');
-    $('#resumenCompraModal').modal('show');
+    if(efectivo){
+        $('#paymentModal').modal('hide');
+        $('#resumenCompraModal').modal('show');
+    }else {
+        window.location.href = `/dashboard/inventario/ventas/pay?total=${totalAmount}`;
+    }
 }
 
 $(document).ready(function () {
@@ -348,11 +352,11 @@ $('#nuevoClienteModal').on('show.bs.modal', function (e) {
 });
 
 $('#pagoEfectivo').click(function () {
-    generarTicket();
+    generarTicket(true);
 });
 
 $('#pagoTarjeta').click(function () {
-    window.open(`/dashboard/inventario/ventas/pay?total=${totalAmount}`);
+    generarTicket(false);
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -371,6 +375,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let errorParam = getUrlParameter('error');
     let successParam = getUrlParameter('success');
+    let paymentParam = getUrlParameter('payment');
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -401,7 +406,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (urlParams.has('clienteRegistrado')) {
             showToast('Cliente registrado con éxito', 'bg-success');
             $('#paymentModal').modal('show');
+            setCookie('clienteId', clienteID, 1);
         }
+    }
+
+    if(paymentParam == '1') {
+        $('#confirmarCorreoModal').modal('show');
     }
 
     $('#otraFormaPago').click(function () {

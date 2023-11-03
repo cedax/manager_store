@@ -16,15 +16,15 @@ paypal.configure({
 
 const createPayment = (req, res) => {
     const totalAmount = req.query.total;
-
+    const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
     const payment = {
         intent: 'sale',
         payer: {
             payment_method: 'paypal'
         },
         redirect_urls: {
-            return_url: 'http://localhost:3000/dashboard/inventario/ventas/success-payment',
-            cancel_url: 'http://localhost:3000/dashboard/inventario/ventas/cancel'
+            return_url: serverBaseUrl+'/dashboard/inventario/ventas?payment=1',
+            cancel_url: serverBaseUrl+'/dashboard/inventario/ventas?payment=2'
         },
         transactions: [{
             amount: {
@@ -81,13 +81,6 @@ router.get('/', async (req, res) => {
         layout: './layouts/dashboard',
         req
     })
-});
-
-router.get('/success-payment', (req, res) => {
-    res.send(`
-        <h1>Pago exitoso</h1>
-        <button onclick="window.close();">Cerrar esta ventana</button>
-    `);
 });
 
 function createInvoice(invoice, path) {
