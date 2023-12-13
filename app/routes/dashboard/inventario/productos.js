@@ -39,7 +39,13 @@ router.get('/editar/:id', async (req, res) => {
             producto
         })
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener el producto para editar' });
+        //res.status(500).json({ error: 'Error al obtener el producto para editar' });
+
+        res.render('./messages/error', {
+            title: 'Error',
+            layout: './layouts/dashboard',
+            error: 'Error al obtener el producto para editar',
+        })
     }
 });
 

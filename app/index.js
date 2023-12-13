@@ -16,7 +16,6 @@ app.use(expressLayouts)
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'));
 
-// Conecta a tu base de datos (asegúrate de tener Mongoose configurado)
 mongoose.connect(process.env.MONGODB_STRING_CONN, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
