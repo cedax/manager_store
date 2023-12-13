@@ -5,6 +5,8 @@ const copiaSeguridadRoutes = require('./copia-seguridad');
 const ventasRoutes = require('./ventas');
 const estadisticasRoutes = require('./estadisticas');
 
+const enConstruccionRoutes = require('../../en-construccion.js');
+
 // Middlewares
 const { isLoggedIn } = require('../../../middlewares/authentication');
 
@@ -18,6 +20,7 @@ router.use('/copia-seguridad', copiaSeguridadRoutes);
 
 router.use('/ventas', ventasRoutes);
 
-router.use('/estadisticas', estadisticasRoutes);
+//router.use('/estadisticas', estadisticasRoutes);
+router.use('/estadisticas', enConstruccionRoutes);
 
 module.exports = router;
