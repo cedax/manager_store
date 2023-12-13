@@ -1,16 +1,95 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Registro</title>
-</head>
-<body>
-  <h1>Registro</h1>
-  <form method="POST" action="/register">
-    <label for="username">Nombre de usuario:</label>
-    <input type="text" id="username" name="username" required><br>
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" name="password" required><br>
-    <button type="submit">Registrarse</button>
-  </form>
-</body>
-</html>
+<link rel="stylesheet" type="text/css" href="/css/login.css">
+<div class="login-page bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 offset-lg-1">
+        <div class="bg-white shadow rounded">
+          <div class="row">
+            <div class="col-md-7 pe-0">
+              <div class="form-left h-100 py-5 px-5">
+                <form action="/register" class="row g-4" method="post" id="register">
+                  <div class="col-12">
+                    <% if (req.query.error==='1' ) { %>
+                      <div class="alert alert-danger">Las contraseñas no coinciden</div>
+                      <% } %>
+                        <% if (req.query.error==='2' ) { %>
+                          <div class="alert alert-danger">El usuario ya existe</div>
+                          <% } %>
+                            <% if (req.query.error==='3' ) { %>
+                              <div class="alert alert-danger">Error desconocido, contacte a soporte</div>
+                              <% } %>
+                              <% if (req.query.error==='4' ) { %>
+                                <div class="alert alert-danger">El captcha es incorrecto</div>
+                                <% } %>
+                  </div>
+
+                  <div class="col-12">
+                    <label>Usuario<span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <div class="input-group-text"><i class="bi bi-person-fill"></i></div>
+                      <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username"
+                        required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label>Contraseña<span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
+                      <input type="password" class="form-control" placeholder="Enter Password" id="password"
+                        name="password" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label>Contraseña<span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
+                      <input type="password" class="form-control" placeholder="Enter Password" id="passwordConfirm"
+                        name="passwordConfirm" required>
+                    </div>
+                  </div>
+
+                  <center>
+                    <div class="col-sm-12">
+                      <div class="g-recaptcha mb-3" data-sitekey="6Lf_E3IUAAAAAN-dPB1GSor--WmEe6VauXxiWrM3"
+                        name="recaptchaResponse"></div>
+                      <input type="hidden" id="recaptchaResponse" name="recaptchaResponse">
+                      <a href="/login" class="float-center text-primary">¿Ya tienes una cuenta? Identificate</a>
+                    </div>
+                  </center>
+
+                  <div class="col-sm-12">
+                    <button type="submit" class="btn btn-primary px-5 float-end">Registrarme</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="col-md-5 ps-0 d-none d-md-block">
+              <div class="form-right h-100 bg-primary text-white text-center pt-5">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <h2 class="fs-1">Sistema de administración</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('register').addEventListener('submit', function (e) {
+    var recaptchaResponse = grecaptcha.getResponse();
+
+    if (recaptchaResponse.length == 0) {
+      alert('Por favor, completa el CAPTCHA.');
+      e.preventDefault();
+    }else {
+      document.getElementById('recaptchaResponse').value = recaptchaResponse;
+      document.forms[0].submit();
+    }
+  });
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>

@@ -1,0 +1,37 @@
+<script>
+    $(document).ready(function() {
+        const currentPath = window.location.pathname;
+        const currentSegment = currentPath.substr(currentPath.lastIndexOf('/') + 1);
+        $('.nav-link').removeClass('active');
+        if (currentSegment === 'productos') {
+            $('#productos').addClass('active');
+        } else if (currentSegment === 'copia-seguridad') {
+            $('#copiaSeguridad').addClass('active');
+        } else if (currentSegment === 'estadisticas') {
+            $('#estadisticas').addClass('active');
+        } else if (currentSegment === 'ventas') {
+            $('#ventas').addClass('active');
+        }
+    });
+</script>
+
+<header class="bg-surface-primary border-bottom">
+    <div class="container-fluid">
+        <div class="mb-npx">
+            <ul class="nav nav-tabs mt-2 overflow-x border-0">
+                <li class="nav-item">
+                    <a href="/dashboard/inventario/productos" id="productos" class="nav-link">Productos</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/dashboard/inventario/ventas" id="ventas" class="nav-link">Ventas</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/dashboard/inventario/copia-seguridad" id="copiaSeguridad" class="nav-link font-regular">Copia de seguridad</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/dashboard/inventario/estadisticas" id="estadisticas" class="nav-link font-regular">Estadisticas</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>

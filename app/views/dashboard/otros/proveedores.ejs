@@ -1,0 +1,95 @@
+<%- include('../../partials/otros/header.ejs') %>
+<div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
+<link rel="stylesheet" href="/css/proveedores.css">
+<div class="container mt-5">
+    <!-- Botón para Agregar Proveedor -->
+    <div class="mb-4">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarProveedorModal">Agregar
+            Proveedor</button>
+    </div>
+
+    <!-- Tabla de Proveedores -->
+    <div class="table-responsive">
+        <table class="table table-hover table-nowrap" id="proveedores-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo Electrónico</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para Agregar Proveedor -->
+<div class="modal fade" id="agregarProveedorModal" tabindex="-1" aria-labelledby="agregarProveedorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="agregarProveedorModalLabel">Agregar Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario para agregar un nuevo proveedor -->
+                <form>
+                    <div class="mb-3">
+                        <label for="nombreProveedor" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="nombreProveedor">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correoProveedor" class="form-label">Correo Electrónico:</label>
+                        <input type="email" class="form-control" id="correoProveedor">
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefonoProveedor" class="form-label">Teléfono:</label>
+                        <input type="tel" class="form-control" id="telefonoProveedor">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Proveedor -->
+<div class="modal fade" id="editarProveedorModal" tabindex="-1" aria-labelledby="editarProveedorModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarProveedorModalLabel">Editar Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Formulario para editar un proveedor existente -->
+                <form>
+                    <div class="mb-3">
+                        <label for="nombreProveedorEdit" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="nombreProveedorEdit">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correoProveedorEdit" class="form-label">Correo Electrónico:</label>
+                        <input type="email" class="form-control" id="correoProveedorEdit">
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefonoProveedorEdit" class="form-label">Teléfono:</label>
+                        <input type="tel" class="form-control" id="telefonoProveedorEdit">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="guardarCambiosProveedor">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/proveedores.js"></script>

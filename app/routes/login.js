@@ -4,7 +4,7 @@ const passport = require('passport');
 const { ensureNotAuthenticated } = require('../middlewares/authentication');
 
 router.get('/login', ensureNotAuthenticated, (req, res) => {
-  res.render('login', { title: 'Login', layout: './layouts/shared', req })
+  res.render('login', { title: 'Login', layout: './layouts/auth', req })
 });
 
 router.post('/login', (req, res, next) => {

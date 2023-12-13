@@ -1,0 +1,167 @@
+<!-- Header -->
+<%- include('../../partials/usuarios/header.ejs') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuarios</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Botón para agregar usuario -->
+        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#agregarUsuarioModal">
+            <i class="fas fa-user-plus"></i> Agregar Usuario
+        </button>
+
+        <!-- Tabla de usuarios -->
+        <div class="table-responsive">
+            <table class="table table-hover table-nowrap">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Correo</th>
+                    <th>Número de Teléfono</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--
+                <tr>
+                    <td>1</td>
+                    <td>John</td>
+                    <td>Doe</td>
+                    <td>johndoe@example.com</td>
+                    <td>123-456-7890</td>
+                    <td>Usuario</td>
+                    <td>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarUsuarioModal">
+                            <i class="fas fa-user-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger">
+                            <i class="fas fa-user-minus"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Jane</td>
+                    <td>Smith</td>
+                    <td>janesmith@example.com</td>
+                    <td>987-654-3210</td>
+                    <td>Cliente</td>
+                    <td>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarUsuarioModal">
+                            <i class="fas fa-user-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger">
+                            <i class="fas fa-user-minus"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+                -->
+                <!-- Agrega más filas de usuarios según sea necesario -->
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Modal para agregar usuario -->
+    <div class="modal fade" id="agregarUsuarioModal" tabindex="-1" aria-labelledby="agregarUsuarioModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="agregarUsuarioModalLabel">Agregar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario para agregar un nuevo usuario -->
+                    <form>
+                        <div class="mb-3">
+                            <label for="nombreUsuario" class="form-label">Nombres:</label>
+                            <input type="text" class="form-control" id="nombreUsuario">
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellidoUsuario" class="form-label">Apellidos:</label>
+                            <input type="text" class="form-control" id="apellidoUsuario">
+                        </div>
+                        <div class="mb-3">
+                            <label for="correoUsuario" class="form-label">Correo Electrónico:</label>
+                            <input type="email" class="form-control" id="correoUsuario">
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefonoUsuario" class="form-label">Número de Teléfono:</label>
+                            <input type="tel" class="form-control" id="telefonoUsuario">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipoUsuario" class="form-label">Tipo:</label>
+                            <select class="form-select" id="tipoUsuario">
+                                <option value="Usuario">Usuario</option>
+                                <option value="Cliente">Cliente</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Agregar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar usuario -->
+    <div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-labelledby="editarUsuarioModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulario para editar un usuario existente -->
+                    <form>
+                        <div class="mb-3">
+                            <label for="nombreUsuarioEdit" class="form-label">Nombres:</label>
+                            <input type="text" class="form-control" id="nombreUsuarioEdit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellidoUsuarioEdit" class="form-label">Apellidos:</label>
+                            <input type="text" class="form-control" id="apellidoUsuarioEdit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="correoUsuarioEdit" class="form-label">Correo Electrónico:</label>
+                            <input type="email" class="form-control" id="correoUsuarioEdit">
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefonoUsuarioEdit" class="form-label">Número de Teléfono:</label>
+                            <input type="tel" class="form-control" id="telefonoUsuarioEdit">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="fas fa-user-edit"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>
