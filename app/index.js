@@ -88,14 +88,14 @@ app.post('/forgot-pass', async (req, res) => {
             const transporter = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
-                    user: 'emortaa@gmail.com',
-                    pass: 'ehnidoowqchzgjbo'
+                    user: 'sedax.contact@gmail.com',
+                    pass: 'itdldpbvhwqjcvsb'
                 }
             });
 
             try {
                 const mailOptions = {
-                    from: 'emortaa@gmail.com',
+                    from: 'sedax.contact@gmail.com',
                     to: email,
                     subject: 'Reseteo de contraseña - No responder',
                     text: 'Token para restablecer tu contraseña: ' + token

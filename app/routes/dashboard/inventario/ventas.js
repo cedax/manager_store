@@ -404,14 +404,14 @@ router.post('/efectivo', async (req, res) => {
             const transporter = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
-                    user: 'emortaa@gmail.com',
-                    pass: 'ehnidoowqchzgjbo'
+                    user: 'sedax.contact@gmail.com',
+                    pass: 'itdldpbvhwqjcvsb'
                 }
             });
 
             try {
                 const mailOptions = {
-                    from: 'emortaa@gmail.com',
+                    from: 'sedax.contact@gmail.com',
                     to: correoCliente,
                     subject: 'Recibo de compra - No responder',
                     text: 'Gracias por tu compra. Adjunto encontrarás el ticket.',
