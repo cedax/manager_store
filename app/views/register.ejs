@@ -16,11 +16,17 @@
                           <div class="alert alert-danger">El usuario ya existe</div>
                           <% } %>
                             <% if (req.query.error==='3' ) { %>
-                              <div class="alert alert-danger">Error desconocido, contacte a soporte</div>
+                              <div class="alert alert-danger">Error desconocido, contacte a soporte y proporcione el codigo ERR-RG-1</div>
                               <% } %>
                               <% if (req.query.error==='4' ) { %>
                                 <div class="alert alert-danger">El captcha es incorrecto</div>
                                 <% } %>
+                                <% if (req.query.error==='5' ) { %>
+                                  <div class="alert alert-danger">El correo es incorrecto</div>
+                                  <% } %>
+                                <% if (req.query.error==='6' ) { %>
+                                    <div class="alert alert-danger">El correo ya esta registrado</div>
+                                    <% } %>
                   </div>
 
                   <div class="col-12">
@@ -47,6 +53,15 @@
                       <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
                       <input type="password" class="form-control" placeholder="Enter Password" id="passwordConfirm"
                         name="passwordConfirm" required>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <label>Correo<span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <div class="input-group-text"><i class="bi bi-envelope"></i></div>
+                      <input type="email" class="form-control" placeholder="Enter Email" id="email"
+                        name="email" required>
                     </div>
                   </div>
 

@@ -7,42 +7,51 @@
                     <div class="row">
                         <div class="col-md-7 pe-0">
                             <div class="form-left h-100 py-5 px-5">
-                                <form action="/login" class="row g-4" method="post">
+                                <form class="row g-4" method="post" action="/reset-pass">
                                     <div class="col-12">
                                         <% if (req.query.error === '1') { %>
-                                            <div class="alert alert-danger">Credenciales incorrectas. Por favor, inténtalo de nuevo.</div>
+                                            <div class="alert alert-danger">Las contraseñas no coinciden</div>
                                         <% } %>
-                                        <% if (req.query.exit === '1') { %>
-                                            <div class="alert alert-success">Credenciales reseteadas correctamente.</div>
+                                        <% if (req.query.error === '2') { %>
+                                            <div class="alert alert-danger">Error desconocido, por favor contacte a soporte y proporcione el codigo ERR-RP-1.</div>
+                                        <% } %>
+                                        <% if (req.query.error === '3') { %>
+                                            <div class="alert alert-danger">Error desconocido, por favor contacte a soporte y proporcione el codigo ERR-RP-2.</div>
+                                        <% } %>
+                                        <% if (req.query.error === '4') { %>
+                                            <div class="alert alert-danger">Token invalido</div>
+                                        <% } %>
+                                        <% if (req.query.error === '5') { %>
+                                            <div class="alert alert-danger">Token usado</div>
                                         <% } %>
                                     </div>
 
                                     <div class="col-12">
-                                        <label>Usuario<span class="text-danger">*</span></label>
+                                        <label>Codigo<span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-text"><i class="bi bi-person-fill"></i></div>
-                                            <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" required>
+                                            <input type="text" class="form-control" placeholder="Codigo enviado por correo" id="token" name="token" required>
                                         </div>
                                     </div>
 
                                     <div class="col-12">
-                                        <label>Contraseña<span class="text-danger">*</span></label>
+                                        <label>Contraseña nueva<span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
                                             <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" required>
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-6">
-                                        <a href="/register" class="float-end text-primary">¿No tienes una cuenta? Regístrate</a>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <a href="/forgot-pass" class="float-end text-primary">¿Olvidaste tu contraseña?</a>
+                                    <div class="col-12">
+                                        <label>Confirmar contraseña nueva<span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <div class="input-group-text"><i class="bi bi-lock-fill"></i></div>
+                                            <input type="password" class="form-control" placeholder="Enter Password" id="passwordConfirm" name="passwordConfirm" required>
+                                        </div>
                                     </div>
 
                                     <div class="col-sm-12">
-                                        <button type="submit" class="btn btn-primary px-5 float-end">Entrar</button>
+                                        <button type="submit" class="btn btn-primary px-5 float-end">Resetear contraseña</button>
                                     </div>
                                 </form>
                             </div>

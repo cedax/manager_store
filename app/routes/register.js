@@ -12,14 +12,31 @@ router.get('/register', (req, res) => {
     }
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const passwordConfirm = req.body.passwordConfirm;
+    const email = req.body.email;
     const recaptchaResponse = req.body.recaptchaResponse;
 
     if (password !== passwordConfirm) {
         return res.redirect('/register?error=1');
+    }
+
+    // verificar el formato del email
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        return res.redirect('/register?error=5');
+    }
+
+    // Verificar si el correo electrónico ya está registrado
+    try {
+        const existingUser = await User.findOne({ email: email }).exec();
+        if (existingUser) {
+            return res.redirect('/register?error=6');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.redirect('/register?error=3');
     }
 
     const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.CAPTCHA_GOOGLE_SECRET_KEY}&response=${recaptchaResponse}`;
@@ -27,7 +44,7 @@ router.post('/register', (req, res) => {
     axios.post(verificationURL)
         .then((response) => {
             if (response.data.success) {
-                User.register(new User({ username: username }), password, (err, user) => {
+                User.register(new User({ username: username, email: email }), password, (err, user) => {
                     if (err) {
                         if (err.message == 'A user with the given username is already registered') {
                             return res.redirect('/register?error=2');
