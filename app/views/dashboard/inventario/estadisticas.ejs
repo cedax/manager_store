@@ -1,61 +1,42 @@
 <%- include('../../partials/inventario/header.ejs') %>
 
-    <div class="container mt-5">
-        <!-- Gráfico de clasificación de productos -->
-        <div class="row">
-            <div class="col-md-6">
-                <h3>Clasificación de Productos</h3>
-                <canvas id="productChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Sugerencias de productos -->
-        <div class="mt-4">
-            <h3>Sugerencias de Productos</h3>
-            <ul>
-                <li>Producto A</li>
-                <li>Producto B</li>
-            </ul>
+<div class="container mt-5">
+    <!-- Gráfico de clasificación de productos -->
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Clasificación de productos mas vendidos</h3>
+            <canvas id="productChart"></canvas>
         </div>
     </div>
+</div>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.5.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    // Datos de ejemplo para el gráfico de clasificación de productos
-    const productData = {
-        labels: ['Producto A', 'Producto B', 'Producto C', 'Producto D', 'Producto E'],
-        datasets: [
-            {
-                label: 'Ventas',
-                data: [100, 75, 50, 80, 60],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-            },
-        ],
-    };
+        // Hacer una solicitud AJAX para obtener los datos desde la ruta /stats
+        fetch('/dashboard/inventario/ventas/stats')
+            .then(response => response.json())
+            .then(data => {
+                // Llenar el gráfico con los datos obtenidos
+                const productChartConfig = {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                };
 
-    // Configuración del gráfico
-    const productChartConfig = {
-        type: 'bar',
-        data: productData,
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
-    };
-
-    // Crear el gráfico de clasificación de productos
-    const productChartCanvas = document.getElementById('productChart').getContext('2d');
-    new Chart(productChartCanvas, productChartConfig);
-});
-
+                const productChartCanvas = document.getElementById('productChart').getContext('2d');
+                new Chart(productChartCanvas, productChartConfig);
+            })
+            .catch(error => console.error(error));
+    });
 </script>

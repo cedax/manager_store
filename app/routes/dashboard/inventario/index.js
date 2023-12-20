@@ -20,7 +20,7 @@ router.use('/copia-seguridad', copiaSeguridadRoutes);
 
 router.use('/ventas', ventasRoutes);
 
-//router.use('/estadisticas', estadisticasRoutes);
-router.use('/estadisticas', enConstruccionRoutes);
+router.use('/estadisticas', estadisticasRoutes);
+//router.use('/estadisticas', enConstruccionRoutes);
 
 module.exports = router;

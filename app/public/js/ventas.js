@@ -65,6 +65,32 @@ function enviarCompraAlServidor(SentCorreo) {
                 }else {
                     showToast('Compra realizada con éxito, el ticket se descargo en tu equipo', 'bg-success', 5000);
                 }
+                // Actualizar tabla, esto se puede agregar a una funcion
+                setTimeout(function () {
+                    $.get('/dashboard/inventario/productos/json', function (data) {
+                        // Limpiar la tabla antes de pintarla nuevamente 
+                        $('#productTable').DataTable().clear().destroy();
+                        $('#productTable').DataTable({
+                            data: data,
+                            columns: [
+                                { data: 'nombre', title: 'Nombre' },
+                                { data: 'precio', title: 'Precio' },
+                                { data: 'existencia', title: 'Existencia' },
+                                {
+                                    data: null,
+                                    title: 'Acciones',
+                                    render: function (data, type, row) {
+                                        if (row.existencia > 0) {
+                                            return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '"><i class="bi bi-cart-plus"></i></button>';
+                                        } else {
+                                            return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '" disabled><i class="bi bi-cart-plus"></i></button>';
+                                        }
+                                    }
+                                }
+                            ]
+                        });
+                    });
+                }, 3000);
             } else {
                 showToast('Error al generar el PDF de compra', 'bg-danger');
             }
@@ -181,11 +207,16 @@ $.get('/dashboard/inventario/productos/json', function (data) {
         columns: [
             { data: 'nombre', title: 'Nombre' },
             { data: 'precio', title: 'Precio' },
+            { data: 'existencia', title: 'Existencia' },
             {
                 data: null,
                 title: 'Acciones',
                 render: function (data, type, row) {
-                    return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '"><i class="bi bi-cart-plus"></i></button>';
+                    if (row.existencia > 0) {
+                        return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '"><i class="bi bi-cart-plus"></i></button>';
+                    } else {
+                        return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '" disabled><i class="bi bi-cart-plus"></i></button>';
+                    }
                 }
             }
         ]
@@ -436,5 +467,24 @@ document.addEventListener('DOMContentLoaded', function () {
         enviarCompraAlServidor(false);
         deleteCookie('cart');
         updateCartView([]);
+    });
+
+    $('#productTable').on('click', '.add-to-cart', function () {
+        // Obtener el ID del producto desde el atributo data
+        const productId = $(this).data('product-id');
+    
+        // Obtener la fila correspondiente al producto
+        const productRow = $('#productTable').DataTable().row($(this).parents('tr')).data();
+    
+        // Verificar si la existencia es mayor que 0 antes de restar 1
+        if (productRow.existencia == 0) {
+            return;
+        }
+
+        // Restar 1 a la existencia del producto
+        productRow.existencia--;
+
+        // Actualizar la fila en la tabla
+        $('#productTable').DataTable().row($(this).parents('tr')).data(productRow).draw();
     });
 });

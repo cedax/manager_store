@@ -7,6 +7,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const Venta = require('../../../models/venta');
 const axios = require('axios');
+const Producto = require('../../../models/producto');
 
 paypal.configure({
     mode: 'sandbox',
@@ -81,6 +82,16 @@ router.get('/', async (req, res) => {
         layout: './layouts/dashboard',
         req
     })
+});
+
+router.get('/stats', async (req, res) => {
+    try {
+        const productStats = await Venta.obtenerEstadisticasProductosMasVendidos();
+        res.json(productStats);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error interno del servidor');
+    }
 });
 
 function createInvoice(invoice, path) {
@@ -285,6 +296,47 @@ function ajustarPrecio(price) {
     return precioAjustado;
 }
 
+const descontarProducto = async function(compraData){
+    // 1. Obtener la lista de productos comprados desde compraData
+    const productosComprados = compraData.productos;
+
+    // 2. Crear un mapa para rastrear la cantidad total de cada producto
+    const cantidadPorProducto = new Map();
+
+    // 3. Calcular la cantidad total para cada producto
+    for (const productoComprado of productosComprados) {
+        const productoId = productoComprado.id;
+
+        // Incrementar la cantidad total para el producto actual
+        cantidadPorProducto.set(productoId, (cantidadPorProducto.get(productoId) || 0) + 1);
+    }
+
+    // 4. Actualizar la cantidad de existencia en la base de datos para cada producto
+    for (const [productoId, cantidad] of cantidadPorProducto.entries()) {
+        // Obtener el producto desde la base de datos
+        const productoEnDB = await Producto.findById(productoId);
+
+        if (!productoEnDB) {
+            console.error(`Producto con ID ${productoId} no encontrado en la base de datos`);
+            continue; // O manejar el error según sea necesario
+        }
+
+        // Calcular la nueva cantidad de existencia
+        const nuevaExistencia = productoEnDB.existencia - cantidad;
+
+        // 5. Manejar casos en los que la cantidad de existencia pueda ser negativa o cero
+        if (nuevaExistencia < 0) {
+            console.warn(`Existencia negativa para el producto con ID ${productoId}. Ajustando a 0.`);
+            productoEnDB.existencia = 0;
+        } else {
+            productoEnDB.existencia = nuevaExistencia;
+        }
+
+        // Guardar el producto actualizado en la base de datos
+        await productoEnDB.save();
+    }
+}
+
 // Ruta de la solicitud POST para crear el ticket
 router.post('/efectivo', async (req, res) => {
     const compraData = req.body; // Datos de la compra enviados desde el cliente
@@ -388,6 +440,7 @@ router.post('/efectivo', async (req, res) => {
 
     nuevaVenta.save().then((venta) => {
         res.json({ ticket: urlDelServidor });
+        descontarProducto(compraData);
     }).catch((error) => {
         console.error('Error al insertar la venta en MongoDB:', error);
         res.status(500).json({ error: 'Error al registrar la venta' });
