@@ -125,19 +125,22 @@
                 // Obtener el botón actual
                 const button = document.querySelector(`#button-${pedidoId}`);
 
-                // Cambiar el estilo y el texto del botón según el nuevo estado
+                // Clonar el botón sin event listeners
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+
+                // Cambiar el estilo y el texto del nuevo botón según el nuevo estado
                 if (nuevoEstado === 'surtido') {
-                    button.className = 'btn btn-warning';
-                    button.textContent = 'Marcar como Pendiente';
-                    button.removeEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
-                    button.addEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
+                    newButton.className = 'btn btn-warning';
+                    newButton.textContent = 'Marcar como Pendiente';
+                    newButton.addEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
                 } else {
-                    button.className = 'btn btn-info';
-                    button.style.color = 'white';
-                    button.textContent = 'Marcar como Surtido';
-                    button.removeEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
-                    button.addEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
+                    newButton.className = 'btn btn-info';
+                    newButton.style.color = 'white';
+                    newButton.textContent = 'Marcar como Surtido';
+                    newButton.addEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
                 }
+
             })
             .catch(error => console.error('Error al actualizar el estado del pedido:', error));
     }
