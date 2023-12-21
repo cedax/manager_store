@@ -156,6 +156,7 @@
                     button.addEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
                 } else {
                     button.className = 'btn btn-info';
+                    button.style.color = 'white';
                     button.textContent = 'Marcar como Surtido';
                     button.removeEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
                     button.addEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
@@ -282,6 +283,7 @@
                     if (pedido.estado === 'pendiente') {
                         button.className = 'btn btn-info';
                         button.textContent = 'Marcar como Surtido';
+                        button.style.color = 'white';
                         button.id = `button-${pedido._id}`;
                         button.addEventListener('click', () => updateOrderStatus(pedido._id, 'surtido'));
                     } else {
@@ -296,7 +298,7 @@
                     deleteButton.className = 'btn btn-danger';
                     deleteButton.textContent = 'Eliminar';
                     deleteButton.addEventListener('click', () => deleteOrder(pedido._id));
-                    
+
                     estadoCell.appendChild(button);
                     deleteButtonCell.appendChild(deleteButton);
                 });
