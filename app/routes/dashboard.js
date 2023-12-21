@@ -16,8 +16,8 @@ const usuariosRoutes = require('./dashboard/usuarios');
 const enConstruccionRoutes = require('./en-construccion.js');
 
 router.use('/inventario', inventarioRoutes);
-//router.use('/deudores', deudoresRoutes);
-router.use('/deudores', enConstruccionRoutes);
+router.use('/deudores', deudoresRoutes);
+//router.use('/deudores', enConstruccionRoutes);
 //router.use('/finanzas', finanzasRoutes);
 router.use('/finanzas', enConstruccionRoutes);
 router.use('/otros', otrosRoutes);

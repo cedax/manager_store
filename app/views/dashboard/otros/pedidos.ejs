@@ -1,5 +1,10 @@
 <%- include('../../partials/otros/header.ejs') %>
-
+<style>
+    #toast-container {
+        z-index: 999999999999999 !important;
+    }
+</style>
+<div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
 <div class="container">
     <h1 class="mt-5">Gestión de Pedidos</h1>
 
@@ -62,6 +67,42 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    function showToast(message, backgroundColor = 'bg-primary', delay = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${backgroundColor}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.style.marginTop = '10px';
+
+        toast.innerHTML = `
+            <div class="toast-header">
+                <strong class="me-auto">Notificación</strong>
+                <small>Justo ahora</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white">
+                ${message}
+            </div>
+        `;
+
+        const toastContainer = document.getElementById('toast-container');
+        toastContainer.appendChild(toast);
+
+        const toastInstance = new bootstrap.Toast(toast);
+
+        toastInstance.show();
+
+        setTimeout(() => {
+            toastInstance.hide();
+        }, delay);
+    }
+
+    function removeFromCart(cartItem) {
+        // Eliminar el elemento del carrito
+        cartItem.remove();
+    }
+
     function addToCart() {
         const productSelect = document.getElementById('productSelect');
         const quantityInput = document.getElementById('quantity');
@@ -87,6 +128,14 @@
                 cartItem.textContent = `${selectedProduct.text} x ${quantity}`;
                 cartItem.dataset.productId = selectedProduct.value;
                 cartItem.dataset.quantity = quantity;
+
+                // Agregar botón de eliminación
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-danger btn-sm ms-2';
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.addEventListener('click', () => removeFromCart(cartItem));
+                cartItem.appendChild(deleteButton);
+
                 cartDiv.appendChild(cartItem);
             }
 
@@ -94,7 +143,7 @@
             productSelect.selectedIndex = 0;
             quantityInput.value = '';
         } else {
-            alert('Por favor, ingresa una cantidad válida.');
+            showToast('Por favor, ingresa una cantidad válida', 'bg-danger');
         }
     }
 
@@ -148,29 +197,28 @@
     function deleteOrder(pedidoId) {
         // Confirmar si el usuario realmente desea eliminar el pedido
         const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este pedido?');
-        
+
         if (confirmDelete) {
             // Hacer la solicitud al backend para eliminar el pedido
             fetch(`/dashboard/otros/pedidos/eliminarPedido/${pedidoId}`, {
                 method: 'DELETE',
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Error al eliminar el pedido');
-                }
-            })
-            .then(data => {
-                console.log(data.mensaje);
-                // Puedes hacer algo con la respuesta, como actualizar la tabla de pedidos
-                // o recargar la página para reflejar los cambios
-                window.location.reload();
-            })
-            .catch(error => console.error('Error al eliminar el pedido:', error));
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error al eliminar el pedido');
+                    }
+                })
+                .then(data => {
+                    console.log(data.mensaje);
+                    // Puedes hacer algo con la respuesta, como actualizar la tabla de pedidos
+                    // o recargar la página para reflejar los cambios
+                    window.location.reload();
+                })
+                .catch(error => console.error('Error al eliminar el pedido:', error));
         }
     }
-
 
     document.addEventListener('DOMContentLoaded', () => {
         const selectElement = document.getElementById('proveedor-list');
@@ -227,9 +275,57 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    if(data.mensaje){
-                        alert(data.mensaje);
-                        window.location.reload();
+                    if (data.mensaje) {
+                        showToast(data.mensaje, 'bg-success');
+
+                        const orderListTable = document.getElementById('orderList');
+                        orderListTable.innerHTML = '';
+
+                        fetch('/dashboard/otros/pedidos/obtenerPedidos')
+                            .then(response => response.json())
+                            .then(pedidos => {
+                                const orderListTable = document.getElementById('orderList');
+
+                                pedidos.forEach(pedido => {
+                                    const newRow = orderListTable.insertRow();
+
+                                    const idCell = newRow.insertCell(0);
+                                    idCell.textContent = pedido._id;
+
+                                    const proveedorCell = newRow.insertCell(1);
+                                    proveedorCell.textContent = pedido.proveedor.nombre;
+
+                                    const productosCell = newRow.insertCell(2);
+                                    productosCell.textContent = formatProductos(pedido.productos);
+
+                                    const estadoCell = newRow.insertCell(3);
+                                    const button = document.createElement('button');
+
+                                    if (pedido.estado === 'pendiente') {
+                                        button.className = 'btn btn-info';
+                                        button.textContent = 'Marcar como Surtido';
+                                        button.style.color = 'white';
+                                        button.id = `button-${pedido._id}`;
+                                        button.addEventListener('click', () => updateOrderStatus(pedido._id, 'surtido'));
+                                    } else {
+                                        button.className = 'btn btn-warning';
+                                        button.textContent = 'Marcar como Pendiente';
+                                        button.id = `button-${pedido._id}`;
+                                        button.addEventListener('click', () => updateOrderStatus(pedido._id, 'pendiente'));
+                                    }
+
+                                    const deleteButtonCell = newRow.insertCell(4);
+                                    const deleteButton = document.createElement('button');
+                                    deleteButton.className = 'btn btn-danger';
+                                    deleteButton.textContent = 'Eliminar';
+                                    deleteButton.addEventListener('click', () => deleteOrder(pedido._id));
+
+                                    estadoCell.appendChild(button);
+                                    deleteButtonCell.appendChild(deleteButton);
+                                });
+                            })
+                            .catch(error => console.error('Error al obtener la lista de pedidos:', error));
+
                     }
                 } else {
                     console.error('Error al generar el pedido:', response.statusText);
