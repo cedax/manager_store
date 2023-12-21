@@ -9,12 +9,27 @@
         <div class="card-body">
             <form id="orderForm">
                 <div class="mb-3">
-                    <label for="clientId" class="form-label">Proovedor:</label>
-                    <input type="text" class="form-control" id="clientId" required>
+                    <label for="proveedor-list" class="form-label">Proveedor:</label>
+                    <select id="proveedor-list" class="custom-select"></select>
                 </div>
                 <div class="mb-3">
-                    <label for="productList" class="form-label">Productos:</label>
-                    <textarea class="form-control" id="productList" required></textarea>
+                    <label for="productSelect" class="form-label">Productos:</label>
+                    <div class="row">
+                        <div class="col-8">
+                            <select id="productSelect" class="custom-select">
+                                <!-- Options se agregarán dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <input type="number" id="quantity" class="form-control" placeholder="Cantidad" min="1">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-2" onclick="addToCart()">Agregar a la
+                        lista</button>
+                </div>
+                <div class="mb-3">
+                    <label for="cart" class="form-label">Lista de Productos:</label>
+                    <div id="cart" class="border p-2"></div>
                 </div>
                 <button type="submit" class="btn btn-primary">Generar Pedido</button>
             </form>
@@ -24,22 +39,268 @@
     <!-- Lista de Pedidos -->
     <div class="mt-4">
         <h3>Lista de Pedidos</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID de Pedido</th>
-                    <th>ID de Cliente</th>
-                    <th>Productos</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody id="orderList">
-                <!-- Los pedidos se listarán aquí -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover table-nowrap">
+                <thead class="thead-light">
+                    <tr>
+                        <th>ID de Pedido</th>
+                        <th>ID de Cliente</th>
+                        <th>Productos</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="orderList">
+                    <!-- Los pedidos se listarán aquí -->
+                </tbody>
+            </table>
+        </div>
     </div>
+
 </div>
 <br><br><br>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.min.js"></script>
-<script src="/scripts/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function addToCart() {
+        const productSelect = document.getElementById('productSelect');
+        const quantityInput = document.getElementById('quantity');
+        const cartDiv = document.getElementById('cart');
+
+        const selectedProduct = productSelect.options[productSelect.selectedIndex];
+        const quantity = quantityInput.value;
+
+        if (quantity && quantity > 0) {
+            // Verificar si el producto ya está en el carrito
+            const existingCartItem = Array.from(cartDiv.children).find(item =>
+                item.dataset.productId === selectedProduct.value
+            );
+
+            if (existingCartItem) {
+                // Si existe, actualizar la cantidad
+                const existingQuantity = parseInt(existingCartItem.dataset.quantity);
+                existingCartItem.dataset.quantity = existingQuantity + parseInt(quantity);
+                existingCartItem.textContent = `${selectedProduct.text} x ${existingQuantity + parseInt(quantity)}`;
+            } else {
+                // Si no existe, agregar un nuevo elemento al carrito
+                const cartItem = document.createElement('div');
+                cartItem.textContent = `${selectedProduct.text} x ${quantity}`;
+                cartItem.dataset.productId = selectedProduct.value;
+                cartItem.dataset.quantity = quantity;
+                cartDiv.appendChild(cartItem);
+            }
+
+            // Limpiar los campos después de agregar a la lista
+            productSelect.selectedIndex = 0;
+            quantityInput.value = '';
+        } else {
+            alert('Por favor, ingresa una cantidad válida.');
+        }
+    }
+
+    async function updateOrderStatus(pedidoId, estado) {
+        try {
+            // Hacer la solicitud al endpoint del backend para actualizar el estado
+            const response = await fetch(`/api/pedidos/actualizarEstado/${pedidoId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ estado }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data.mensaje);
+                // Puedes hacer algo con la respuesta, como actualizar la tabla de pedidos
+            } else {
+                console.error('Error al actualizar el estado:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al actualizar el estado:', error);
+        }
+    }
+
+    function formatProductos(productos) {
+        // Formatear la lista de productos como "Producto x Cantidad"
+        return productos.map(producto => `${producto.nombre} x ${producto.cantidad}`).join(', ');
+    }
+
+    function updateOrderStatus(pedidoId, nuevoEstado) {
+        // Hacer la solicitud al backend para actualizar el estado del pedido
+        fetch(`/dashboard/otros/pedidos/actualizarEstado/${pedidoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ estado: nuevoEstado }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error al actualizar el estado del pedido');
+                }
+            })
+            .then(data => {
+                console.log(data.mensaje);
+
+                // Obtener el botón actual
+                const button = document.querySelector(`#button-${pedidoId}`);
+
+                // Cambiar el estilo y el texto del botón según el nuevo estado
+                if (nuevoEstado === 'surtido') {
+                    button.className = 'btn btn-warning';
+                    button.textContent = 'Marcar como Pendiente';
+                    button.removeEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
+                    button.addEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
+                } else {
+                    button.className = 'btn btn-info';
+                    button.textContent = 'Marcar como Surtido';
+                    button.removeEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
+                    button.addEventListener('click', () => updateOrderStatus(pedidoId, 'surtido'));
+                }
+            })
+            .catch(error => console.error('Error al actualizar el estado del pedido:', error));
+    }
+
+    function deleteOrder(pedidoId) {
+        // Confirmar si el usuario realmente desea eliminar el pedido
+        const confirmDelete = confirm('¿Estás seguro de que deseas eliminar este pedido?');
+        
+        if (confirmDelete) {
+            // Hacer la solicitud al backend para eliminar el pedido
+            fetch(`/dashboard/otros/pedidos/eliminarPedido/${pedidoId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error al eliminar el pedido');
+                }
+            })
+            .then(data => {
+                console.log(data.mensaje);
+                // Puedes hacer algo con la respuesta, como actualizar la tabla de pedidos
+                // o recargar la página para reflejar los cambios
+                window.location.reload();
+            })
+            .catch(error => console.error('Error al eliminar el pedido:', error));
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectElement = document.getElementById('proveedor-list');
+        const productSelect = document.getElementById('productSelect');
+        const quantityInput = document.getElementById('quantity');
+        const cartDiv = document.getElementById('cart');
+
+        // Hacer la solicitud al endpoint del backend para obtener proveedores
+        fetch('/dashboard/otros/proveedores/obtener')
+            .then(response => response.json())
+            .then(proveedores => {
+                proveedores.forEach(proveedor => {
+                    const option = document.createElement('option');
+                    option.value = proveedor._id;
+                    option.text = proveedor.nombre;
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al obtener la lista de proveedores:', error));
+
+        // Hacer la solicitud al endpoint del backend para obtener productos
+        fetch('/dashboard/inventario/productos/json')
+            .then(response => response.json())
+            .then(productos => {
+                productos.forEach(producto => {
+                    const option = document.createElement('option');
+                    option.value = producto._id;
+                    //  - $${producto.precio}
+                    option.text = `${producto.nombre}`;
+                    productSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al obtener la lista de productos:', error));
+
+        const orderForm = document.getElementById('orderForm');
+
+        orderForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const proveedor = document.getElementById('proveedor-list').value;
+            const productos = Array.from(document.getElementById('cart').children).map(item => {
+                const [nombre, cantidad] = item.textContent.split(' x ');
+                return { nombre, cantidad: parseInt(cantidad) };
+            });
+
+            try {
+                const response = await fetch('/dashboard/otros/pedidos/generarPedido', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ proveedor, productos }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if(data.mensaje){
+                        alert(data.mensaje);
+                        window.location.reload();
+                    }
+                } else {
+                    console.error('Error al generar el pedido:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error al generar el pedido:', error);
+            }
+        });
+
+        // Hacer la solicitud al endpoint del backend para obtener la lista de pedidos
+        fetch('/dashboard/otros/pedidos/obtenerPedidos')
+            .then(response => response.json())
+            .then(pedidos => {
+                const orderListTable = document.getElementById('orderList');
+
+                pedidos.forEach(pedido => {
+                    const newRow = orderListTable.insertRow();
+
+                    const idCell = newRow.insertCell(0);
+                    idCell.textContent = pedido._id;
+
+                    const proveedorCell = newRow.insertCell(1);
+                    proveedorCell.textContent = pedido.proveedor.nombre;
+
+                    const productosCell = newRow.insertCell(2);
+                    productosCell.textContent = formatProductos(pedido.productos);
+
+                    const estadoCell = newRow.insertCell(3);
+                    const button = document.createElement('button');
+
+                    if (pedido.estado === 'pendiente') {
+                        button.className = 'btn btn-info';
+                        button.textContent = 'Marcar como Surtido';
+                        button.id = `button-${pedido._id}`;
+                        button.addEventListener('click', () => updateOrderStatus(pedido._id, 'surtido'));
+                    } else {
+                        button.className = 'btn btn-warning';
+                        button.textContent = 'Marcar como Pendiente';
+                        button.id = `button-${pedido._id}`;
+                        button.addEventListener('click', () => updateOrderStatus(pedido._id, 'pendiente'));
+                    }
+
+                    const deleteButtonCell = newRow.insertCell(4);
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-danger';
+                    deleteButton.textContent = 'Eliminar';
+                    deleteButton.addEventListener('click', () => deleteOrder(pedido._id));
+                    
+                    estadoCell.appendChild(button);
+                    deleteButtonCell.appendChild(deleteButton);
+                });
+            })
+            .catch(error => console.error('Error al obtener la lista de pedidos:', error));
+    });
+</script>
