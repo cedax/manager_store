@@ -98,29 +98,6 @@
         }
     }
 
-    async function updateOrderStatus(pedidoId, estado) {
-        try {
-            // Hacer la solicitud al endpoint del backend para actualizar el estado
-            const response = await fetch(`/api/pedidos/actualizarEstado/${pedidoId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ estado }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data.mensaje);
-                // Puedes hacer algo con la respuesta, como actualizar la tabla de pedidos
-            } else {
-                console.error('Error al actualizar el estado:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error al actualizar el estado:', error);
-        }
-    }
-
     function formatProductos(productos) {
         // Formatear la lista de productos como "Producto x Cantidad"
         return productos.map(producto => `${producto.nombre} x ${producto.cantidad}`).join(', ');
