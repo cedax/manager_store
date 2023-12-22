@@ -5,8 +5,7 @@
   "main": "app/index.js",
   "scripts": {
     "dev": "nodemon start app/index.js",
-    "start": "node app/index.js",
-    "prod": "sudo /home/ubuntu/.nvm/versions/node/v20.10.0/bin/node app/index.js"
+    "start": "node app/index.js"
   },
   "author": "Chris Lopez",
   "license": "ISC",
