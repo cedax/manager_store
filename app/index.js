@@ -183,25 +183,9 @@ app.post('/reset-pass', async (req, res) => {
     }
 });
 
-/*
 // Iniciar el servidor
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
     console.log(`Servidor Express en ejecución en el puerto ${port}`);
-});
-*/
-
-// Configurar el servidor HTTPS
-const options = {
-    key: fs.readFileSync('server.key'),
-    cert: fs.readFileSync('server.cert'),
-};
-
-const puertoHTTPS = 443;
-
-const server = https.createServer(options, app);
-
-server.listen(puertoHTTPS, () => {
-    console.log(`Servidor HTTPS en https://localhost:${puertoHTTPS}`);
 });
