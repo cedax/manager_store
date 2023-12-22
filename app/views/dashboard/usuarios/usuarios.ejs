@@ -1,6 +1,6 @@
 <!-- Header -->
 <%- include('../../partials/usuarios/header.ejs') %>
-<div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
+    <div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
     <!DOCTYPE html>
     <html lang="en">
 
@@ -29,40 +29,40 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!--
-                <tr>
-                    <td>1</td>
-                    <td>John</td>
-                    <td>Doe</td>
-                    <td>johndoe@example.com</td>
-                    <td>123-456-7890</td>
-                    <td>Usuario</td>
-                    <td>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarUsuarioModal">
-                            <i class="fas fa-user-edit"></i> Editar
-                        </button>
-                        <button class="btn btn-danger">
-                            <i class="fas fa-user-minus"></i> Eliminar
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane</td>
-                    <td>Smith</td>
-                    <td>janesmith@example.com</td>
-                    <td>987-654-3210</td>
-                    <td>Cliente</td>
-                    <td>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarUsuarioModal">
-                            <i class="fas fa-user-edit"></i> Editar
-                        </button>
-                        <button class="btn btn-danger">
-                            <i class="fas fa-user-minus"></i> Eliminar
-                        </button>
-                    </td>
-                </tr>
-                -->
+                        <tr>
+                            <td>1</td>
+                            <td>John</td>
+                            <td>Doe</td>
+                            <td>johndoe@example.com</td>
+                            <td>123-456-7890</td>
+                            <td>Usuario</td>
+                            <td>
+                                <button class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#editarUsuarioModal">
+                                    <i class="fas fa-user-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger">
+                                    <i class="fas fa-user-minus"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Jane</td>
+                            <td>Smith</td>
+                            <td>janesmith@example.com</td>
+                            <td>987-654-3210</td>
+                            <td>Cliente</td>
+                            <td>
+                                <button class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#editarUsuarioModal">
+                                    <i class="fas fa-user-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger">
+                                    <i class="fas fa-user-minus"></i> Eliminar
+                                </button>
+                            </td>
+                        </tr>
                         <!-- Agrega más filas de usuarios según sea necesario -->
                     </tbody>
                 </table>
@@ -81,7 +81,8 @@
                     <div class="modal-body">
                         <!-- Formulario para agregar un nuevo usuario -->
                         <form>
-                            <label for="correoUsuario" class="form-label">Correo Electrónico:</label>
+                            <div class="mb-3">
+                                <label for="correoUsuario" class="form-label">Correo Electrónico:</label>
                                 <input type="email" class="form-control" id="correoUsuario">
                             </div>
                             <div class="mb-3">
@@ -161,15 +162,15 @@
                 toast.style.marginTop = '10px';
 
                 toast.innerHTML = `
-                    <div class="toast-header">
-                        <strong class="me-auto">Notificación</strong>
-                        <small>Justo ahora</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body text-white">
-                        ${message}
-                    </div>
-                `;
+                <div class="toast-header">
+                    <strong class="me-auto">Notificación</strong>
+                    <small>Justo ahora</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body text-white">
+                    ${message}
+                </div>
+            `;
 
                 const toastContainer = document.getElementById('toast-container');
                 toastContainer.appendChild(toast);

@@ -10,6 +10,8 @@ const app = express();
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const https = require('https');
+const fs = require('fs');
 
 app.use(express.static(__dirname + '/public'));
 
@@ -84,7 +86,7 @@ app.post('/forgot-pass', async (req, res) => {
 
         if (user) {
             const token = user.generateAuthToken();
-            
+
             const transporter = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
@@ -149,10 +151,10 @@ app.post('/reset-pass', async (req, res) => {
         if (decodedToken) {
             // Token válido, puedes procesar la solicitud
             const userId = decodedToken._id;
-            
+
             try {
                 const user = await User.findById(userId).exec();
-                
+
                 if (user) {
                     const isTokenValid = user.isAuthTokenValid(token);
 
@@ -181,8 +183,25 @@ app.post('/reset-pass', async (req, res) => {
     }
 });
 
+/*
 // Iniciar el servidor
 const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
     console.log(`Servidor Express en ejecución en el puerto ${port}`);
+});
+*/
+
+// Configurar el servidor HTTPS
+const options = {
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert'),
+};
+
+const puertoHTTPS = 3000;
+
+const server = https.createServer(options, app);
+
+server.listen(puertoHTTPS, () => {
+    console.log(`Servidor HTTPS en https://localhost:${puertoHTTPS}`);
 });
