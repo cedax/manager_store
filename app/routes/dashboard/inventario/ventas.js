@@ -361,11 +361,11 @@ router.post('/efectivo', async (req, res) => {
 
     const invoice = {
         shipping: {
-            name: "Jared Lopez",
-            address: "1234 Main Street",
-            city: "San Francisco",
-            state: "CA",
-            country: "US",
+            name: "",
+            address: "",
+            city: "",
+            state: "",
+            country: "",
             postal_code: 94111
         },
         items: [],
