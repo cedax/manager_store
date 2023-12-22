@@ -41,15 +41,14 @@ router.post('/buscar', async (req, res) => {
         // Define el ID del usuario que se debe omitir
         const idUsuarioOmitir = '6584ff01432f549c127ccb41';
 
-        // Construye el filtro de búsqueda
+        // Define un objeto de búsqueda con los campos proporcionados
         const filtroBusqueda = {
-            $or: [
-                { nombres: new RegExp(nombre, 'i') }, // Búsqueda por nombre (insensible a mayúsculas y minúsculas)
-                { correo: new RegExp(correo, 'i') }, // Búsqueda por correo (insensible a mayúsculas y minúsculas)
-                { numero: new RegExp(numero, 'i') }, // Búsqueda por número (insensible a mayúsculas y minúsculas)
-            ],
-            _id: { $ne: idUsuarioOmitir }, // Omitir el usuario con el ID especificado
+            _id: { $ne: idUsuarioOmitir } // Excluir el usuario con el ID especificado
         };
+
+        if (nombre) filtroBusqueda.nombres = nombre;
+        if (correo) filtroBusqueda.correo = correo;
+        if (numero) filtroBusqueda.numero = numero;
 
         // Utiliza Mongoose para buscar clientes que coincidan con el filtro
         const resultados = await Cliente.find(filtroBusqueda);
@@ -60,7 +59,6 @@ router.post('/buscar', async (req, res) => {
         res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-
 
 router.get('/correo/:userId', async (req, res) => {
     try {
