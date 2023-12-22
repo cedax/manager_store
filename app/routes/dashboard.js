@@ -19,7 +19,7 @@ router.use('/inventario', inventarioRoutes);
 router.use('/deudores', deudoresRoutes);
 router.use('/finanzas', finanzasRoutes);
 router.use('/otros', otrosRoutes);
-//router.use('/usuarios', usuariosRoutes);
+router.use('/usuarios', usuariosRoutes);
 router.use('/devoluciones', devoluciones);
 
 
