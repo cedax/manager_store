@@ -1,30 +1,181 @@
-<!-- Header -->
 <%- include('../../partials/deudores/header.ejs') %>
-<!--
-    <div class="container mt-5">
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-warning text-white">Deudor 1</div>
-                    <div class="card-body">
-                        <h5 class="card-title">Nombre: Juan Pérez</h5>
-                        <p class="card-text">Correo: juan@example.com</p>
-                        <p class="card-text">Teléfono: 123-456-7890</p>
-                        <p class="card-text text-warning">Estado: Cerca del límite de crédito</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-header bg-danger text-white">Deudor 2</div>
-                    <div class="card-body">
-                        <h5 class="card-title">Nombre: María Rodríguez</h5>
-                        <p class="card-text">Correo: maria@example.com</p>
-                        <p class="card-text">Teléfono: 987-654-3210</p>
-                        <p class="card-text text-danger">Estado: Límite de crédito alcanzado</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<style>
+    #toast-container {
+        z-index: 999999999999999 !important;
+    }
+</style>
+<div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
+<div class="container mt-5">
+    <!-- Agregar el select para filtrar por deudor -->
+    <div class="mb-3">
+        <label for="selectDeudor" class="form-label">Filtrar por deudor:</label>
+        <select id="selectDeudor" class="form-select">
+            <option value="todos">Todos</option>
+            <!-- Opciones de deudores se agregarán dinámicamente con JavaScript -->
+        </select>
     </div>
--->
+
+    <div class="row mt-4" id="deudoresSection"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch('/dashboard/usuarios/cliente/json');
+            const clientes = await response.json();
+            
+            const deudoresSection = document.getElementById('deudoresSection');
+            const selectDeudor = document.getElementById('selectDeudor');
+
+            // Agregar opciones de deudores al select
+            clientes.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente._id;
+                option.text = `${cliente.nombres} ${cliente.apellidos}`;
+                selectDeudor.appendChild(option);
+            });
+
+            // Manejar cambios en el select
+            selectDeudor.addEventListener('change', () => {
+                renderizarDeudas(); // Volver a renderizar las deudas al cambiar el select
+            });
+
+            // Renderizar las deudas inicialmente
+            renderizarDeudas();
+        } catch (error) {
+            console.error('Error al obtener clientes:', error);
+        }
+    });
+
+    async function renderizarDeudas() {
+        
+        
+        const selectDeudor = document.getElementById('selectDeudor');
+        const clienteIdSeleccionado = selectDeudor.value;
+
+        try {
+            const response = await fetch('/dashboard/usuarios/cliente/json');
+            const clientes = await response.json();
+            console.log(clientes);
+            const deudoresSection = document.getElementById('deudoresSection');
+
+            // Limpiar deudas actuales antes de renderizar nuevas
+            deudoresSection.innerHTML = '';
+
+            clientes.forEach(cliente => {
+                if (cliente.deudas && cliente.deudas.length > 0) {
+                    // Filtrar deudas según el deudor seleccionado
+                    if (clienteIdSeleccionado === 'todos' || clienteIdSeleccionado === cliente._id) {
+                        cliente.deudas.forEach(deuda => {
+                            if(deuda.pagado){return;}
+
+                            // Calcular el estado y color de la tarjeta
+                            const { estado, color } = calcularEstadoYColor(deuda);
+
+                            deuda.fechaMaximaPago = deuda.fechaMaximaPago.split('T')[0];
+                            const card = document.createElement('div');
+                            card.className = `col-md-6`;
+                            card.innerHTML = `
+                        <div class="card mb-5">
+                            <div class="card-header ${color} text-white">${estado}</div>
+                            <div class="card-body">
+                                <h5 class="card-title">Nombre: ${cliente.nombres} ${cliente.apellidos}</h5>
+                                <p class="card-text">Correo: ${cliente.correo}</p>
+                                <p class="card-text">Teléfono: ${cliente.numero}</p>
+                                <p class="card-text">Monto: $${deuda.monto}</p>
+                                <p class="card-text">Fecha máxima de pago: ${deuda.fechaMaximaPago}</p>
+                                <p class="card-text">Estado: ${estado}</p>
+                                <br>
+                                <button class="btn btn-primary w-100" onclick="pagarDeuda('${cliente._id}', '${deuda._id}')">Pagar</button>
+                            </div>
+                        </div>
+                    `;
+                            deudoresSection.appendChild(card);
+                        });
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error al obtener clientes:', error);
+        }
+    }
+
+    function showToast(message, backgroundColor = 'bg-primary', delay = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${backgroundColor}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.style.marginTop = '10px';
+
+        toast.innerHTML = `
+    <div class="toast-header">
+        <strong class="me-auto">Notificación</strong>
+        <small>Justo ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body text-white">
+        ${message}
+    </div>
+`;
+
+        const toastContainer = document.getElementById('toast-container');
+        toastContainer.appendChild(toast);
+
+        const toastInstance = new bootstrap.Toast(toast);
+
+        toastInstance.show();
+
+        setTimeout(() => {
+            toastInstance.hide();
+        }, delay);
+    }
+
+    // Función para calcular el estado y color de la tarjeta
+    function calcularEstadoYColor(deuda) {
+        const hoy = new Date();
+        const fechaMaximaPago = new Date(deuda.fechaMaximaPago);
+
+        // Calcular días restantes
+        const diasRestantes = Math.floor((fechaMaximaPago - hoy) / (1000 * 60 * 60 * 24));
+
+        // Definir umbrales de días
+        const limiteCreditoAlcanzado = -1;
+        const limiteCreditoCerca = 5;
+
+        let estado, color;
+
+        if (diasRestantes < limiteCreditoAlcanzado) {
+            estado = 'Pago atrasado';
+            color = 'bg-danger';
+        } else if (diasRestantes <= limiteCreditoCerca) {
+            estado = 'Cerca de la fecha límite de pago';
+            color = 'bg-warning';
+        } else {
+            estado = 'Aun tiene tiempo para pagar';
+            color = 'bg-success';
+        }
+
+        return { estado, color };
+    }
+
+    async function pagarDeuda(clienteId, deudaId) {
+        console.log(`Pagando deuda ${deudaId} del cliente ${clienteId}`);
+        try {
+            const response = await fetch(`/dashboard/usuarios/cliente/pagarDeuda/${clienteId}/${deudaId}`, {
+                method: 'PUT',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data.mensaje);
+                showToast('Deuda pagada con exito', 'bg-success');
+                renderizarDeudas();
+            } else {
+                console.error('Error al pagar la deuda:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error al pagar la deuda:', error);
+        }
+    }
+</script>

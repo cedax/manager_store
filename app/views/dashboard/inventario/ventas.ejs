@@ -74,6 +74,11 @@
                             <i class="bi bi-credit-card"></i> Tarjeta
                         </button>
                     </div>
+                    <div class="col-md-12 mt-5">
+                        <button type="button" class="btn btn-outline-primary w-100" id="pagoCredito">
+                            <i class="bi bi-credit-card"></i> Credito
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,7 +98,7 @@
                     <div class="col-12">
                         <button type="button"
                             class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
-                            data-bs-toggle="modal" data-bs-target="#buscarClienteModal">
+                            data-bs-toggle="modal" data-bs-target="#buscarClienteModal" id="clienteRegistrado">
                             <span>Cliente Registrado</span>
                             <i class="bi bi-person"></i>
                         </button>
@@ -101,7 +106,7 @@
                     <div class="col-12 mt-4">
                         <button type="button"
                             class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
-                            data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+                            data-bs-toggle="modal" data-bs-target="#nuevoClienteModal" id="nuevoCliente">
                             <span>Nuevo Cliente</span>
                             <i class="bi bi-person-plus"></i>
                         </button>
@@ -109,7 +114,7 @@
                     <div class="col-12 mt-4">
                         <button type="button"
                             class="w-100 btn btn-outline-primary d-flex justify-content-between align-items-center"
-                            data-bs-toggle="modal" data-bs-target="#paymentModal">
+                            data-bs-toggle="modal" data-bs-target="#paymentModal" id="sinRegistro">
                             <span>Sin registro</span>
                             <i class="bi bi-person-plus"></i>
                         </button>
@@ -190,8 +195,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="otraFormaPago">Seleccionar otra forma de
-                    pago</button>
+                <button type="button" class="btn btn-primary" id="otraFormaPago">Seleccionar otra forma de pago</button>
                 <button type="button" class="btn btn-success" id="confirmarCompra">Confirmar compra</button>
             </div>
         </div>
@@ -224,7 +228,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                ¿Deseas enviar el PDF del ticket por correo?
+                <span>¿Deseas enviar el PDF del ticket por correo?</span>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="enviarCorreoNo">No, solo cobrar</button>

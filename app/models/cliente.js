@@ -5,6 +5,13 @@ const clienteSchema = new mongoose.Schema({
     apellidos: { type: String, required: true },
     correo: { type: String, required: true, unique: true },
     numero: { type: String, required: true, unique: true },
+    deudas: [
+        {
+            monto: { type: Number, required: true },
+            fechaMaximaPago: { type: Date, required: true },
+            pagado: { type: Boolean, default: false },
+        },
+    ],
 });
 
 const Cliente = mongoose.model('Cliente', clienteSchema);

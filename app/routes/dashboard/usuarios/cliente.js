@@ -20,11 +20,11 @@ router.post('/registro', async (req, res) => {
 
         await nuevoCliente.save();
 
-        res.redirect('/dashboard/inventario/ventas?success=1&clienteRegistrado='+nuevoCliente._id);
+        res.redirect('/dashboard/inventario/ventas?success=1&clienteRegistrado=' + nuevoCliente._id);
     } catch (error) {
         let clienteJsonString = JSON.stringify(clienteJson);
         if (error.code === 11000 && error.keyPattern.correo) {
-            res.redirect('/dashboard/inventario/ventas?error=1&cliente=' + clienteJsonString);  
+            res.redirect('/dashboard/inventario/ventas?error=1&cliente=' + clienteJsonString);
         } else if (error.code === 11000 && error.keyPattern.numero) {
             res.redirect('/dashboard/inventario/ventas?error=2&cliente=' + clienteJsonString);
         } else {
@@ -71,8 +71,76 @@ router.get('/correo/:userId', async (req, res) => {
     }
 });
 
+router.get('/json', async (req, res) => {
+    const clientes = await Cliente.find();
+    res.json(clientes);
+});
+
+// Ruta para agregar una nueva deuda a un cliente
+router.post('/agregarDeuda/:clienteId', async (req, res) => {
+    const { clienteId } = req.params;
+    const { monto, fechaMaximaPago } = req.body;
+
+    try {
+        // Buscar el cliente por su ID
+        const cliente = await Cliente.findById(clienteId);
+
+        if (!cliente) {
+            return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+        }
+
+        // Crear una nueva deuda
+        const nuevaDeuda = {
+            monto,
+            fechaMaximaPago,
+            pagado: false,
+        };
+
+        // Agregar la nueva deuda al array de deudas del cliente
+        cliente.deudas.push(nuevaDeuda);
+
+        // Guardar el cliente actualizado en la base de datos
+        const clienteActualizado = await cliente.save();
+
+        res.status(201).json({
+            mensaje: 'Deuda agregada con éxito',
+            cliente: clienteActualizado,
+        });
+    } catch (error) {
+        console.error('Error al agregar deuda:', error);
+        res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+});
+
+router.put('/pagarDeuda/:clienteId/:deudaId', async (req, res) => {
+    const { clienteId, deudaId } = req.params;
+
+    try {
+        // Encuentra el cliente por ID
+        const cliente = await Cliente.findById(clienteId);
+
+        if (!cliente) {
+            return res.status(404).json({ mensaje: 'Cliente no encontrado' });
+        }
+
+        // Encuentra la deuda por ID
+        const deuda = cliente.deudas.find(d => d._id == deudaId);
+
+        if (!deuda) {
+            return res.status(404).json({ mensaje: 'Deuda no encontrada para este cliente' });
+        }
+
+        // Marcar la deuda como pagada
+        deuda.pagado = true;
+
+        // Guardar los cambios en el cliente
+        await cliente.save();
+
+        return res.json({ mensaje: `Deuda ${deudaId} del cliente ${clienteId} pagada con éxito` });
+    } catch (error) {
+        console.error('Error al pagar la deuda:', error);
+        return res.status(500).json({ mensaje: 'Error interno del servidor' });
+    }
+});
+
 module.exports = router;
-
-
-
-

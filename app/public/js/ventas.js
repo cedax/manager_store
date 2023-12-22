@@ -384,10 +384,44 @@ $('#nuevoClienteModal').on('show.bs.modal', function (e) {
 
 $('#pagoEfectivo').click(function () {
     generarTicket(true);
+
+    let pagoCredito = getCookie("pagoCredito");
+    if (pagoCredito) {
+        deleteCookie('pagoCredito');
+    }
+    setCookie('pagoCredito', false, 1);
 });
 
 $('#pagoTarjeta').click(function () {
     generarTicket(false);
+
+    let pagoCredito = getCookie("pagoCredito");
+    if (pagoCredito) {
+        deleteCookie('pagoCredito');
+    }
+    setCookie('pagoCredito', false, 1);
+});
+
+$('#pagoCredito').click(function () {
+    generarTicket(true);
+
+    let pagoCredito = getCookie("pagoCredito");
+    if (pagoCredito) {
+        deleteCookie('pagoCredito');
+    }
+    setCookie('pagoCredito', true, 1);
+});
+
+$('#sinRegistro').click(function () {
+    $('#pagoCredito').prop('disabled', true);
+});
+
+$('#clienteRegistrado').click(function () {
+    $('#pagoCredito').prop('disabled', false);
+});
+
+$('#nuevoCliente').click(function () {
+    $('#pagoCredito').prop('disabled', false);
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -455,7 +489,46 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#resumenCompraModal').modal('hide');
     });
 
+    function cobrarConCredito() {
+        let pagoCredito = getCookie("pagoCredito");
+        if (pagoCredito) {
+            let clienteId = getCookie("clienteId");
+            const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
+            
+            let fecha = new Date();
+            fecha.setDate(fecha.getDate() + 15);
+
+            // Datos de la nueva deuda (ajusta según tus necesidades)
+            const nuevaDeuda = {
+                monto: total,
+                fechaMaximaPago: fecha
+            };
+    
+            // Realizar la solicitud al endpoint para agregar una nueva deuda
+            fetch(`/dashboard/usuarios/cliente/agregarDeuda/${clienteId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(nuevaDeuda),
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Error al agregar la deuda');
+                }
+            })
+            .then(data => {
+                console.log(data.mensaje);
+                // Puedes realizar acciones adicionales si es necesario
+            })
+            .catch(error => console.error('Error al agregar la deuda:', error));
+        }
+    }
+    
     document.getElementById('enviarCorreoSi').addEventListener('click', function () {
+        cobrarConCredito();
         $('#confirmarCorreoModal').modal('hide');
         enviarCompraAlServidor(true);
         deleteCookie('cart');
@@ -463,6 +536,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('enviarCorreoNo').addEventListener('click', function () {
+        cobrarConCredito();
         $('#confirmarCorreoModal').modal('hide');
         enviarCompraAlServidor(false);
         deleteCookie('cart');

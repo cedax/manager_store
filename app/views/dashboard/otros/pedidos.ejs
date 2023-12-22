@@ -180,7 +180,7 @@
 
                 // Cambiar el estilo y el texto del nuevo botón según el nuevo estado
                 if (nuevoEstado === 'surtido') {
-                    newButton.className = 'btn btn-warning';
+                    newButton.className = 'btn btn-primary';
                     newButton.textContent = 'Marcar como Pendiente';
                     newButton.addEventListener('click', () => updateOrderStatus(pedidoId, 'pendiente'));
                 } else {
@@ -308,7 +308,7 @@
                                         button.id = `button-${pedido._id}`;
                                         button.addEventListener('click', () => updateOrderStatus(pedido._id, 'surtido'));
                                     } else {
-                                        button.className = 'btn btn-warning';
+                                        button.className = 'btn btn-primary';
                                         button.textContent = 'Marcar como Pendiente';
                                         button.id = `button-${pedido._id}`;
                                         button.addEventListener('click', () => updateOrderStatus(pedido._id, 'pendiente'));
@@ -363,7 +363,7 @@
                         button.id = `button-${pedido._id}`;
                         button.addEventListener('click', () => updateOrderStatus(pedido._id, 'surtido'));
                     } else {
-                        button.className = 'btn btn-warning';
+                        button.className = 'btn btn-primary';
                         button.textContent = 'Marcar como Pendiente';
                         button.id = `button-${pedido._id}`;
                         button.addEventListener('click', () => updateOrderStatus(pedido._id, 'pendiente'));
