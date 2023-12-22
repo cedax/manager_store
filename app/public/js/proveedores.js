@@ -70,6 +70,22 @@ $(document).ready(function () {
         const nuevoCorreo = $('#correoProveedorEdit').val();
         const nuevoTelefono = $('#telefonoProveedorEdit').val();
 
+        // verificar que correo tenga formato de correo y nuevo telefono sea number
+        if (!nuevoCorreo.includes('@')) {
+            showToast('El correo debe tener formato de correo', 'bg-danger');
+            return;
+        }
+
+        if (isNaN(nuevoTelefono)) {
+            showToast('El teléfono debe ser un número', 'bg-danger');
+            return; 
+        }
+
+        if (nuevoTelefono.length < 8) {
+            showToast('El teléfono debe tener al menos 8 dígitos', 'bg-danger');
+            return;
+        }
+
         // Crea un objeto con los nuevos datos del proveedor
         const datosProveedor = {
             nombre: nuevoNombre,
@@ -143,6 +159,24 @@ $(document).ready(function () {
         // Validar que los campos no estén vacíos
         if (!nombre || !correo || !telefono) {
             showToast('Por favor, ingresa todos los datos', 'bg-danger');
+            return;
+        }
+
+        // Validar que el correo tenga formato de correo
+        if (!correo.includes('@')) {
+            showToast('El correo debe tener formato de correo', 'bg-danger');
+            return;
+        }
+
+        // Validar que el teléfono sea un número
+        if (isNaN(telefono)) {
+            showToast('El teléfono debe ser un número', 'bg-danger');
+            return;
+        }
+
+        // Validar que el teléfono tenga al menos 8 dígitos
+        if (telefono.length < 8) {
+            showToast('El teléfono debe tener al menos 8 dígitos', 'bg-danger');
             return;
         }
 

@@ -122,6 +122,13 @@
                 const existingQuantity = parseInt(existingCartItem.dataset.quantity);
                 existingCartItem.dataset.quantity = existingQuantity + parseInt(quantity);
                 existingCartItem.textContent = `${selectedProduct.text} x ${existingQuantity + parseInt(quantity)}`;
+
+                // agregar boton para eliminar el item
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-danger btn-sm ms-2';
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.addEventListener('click', () => removeFromCart(existingCartItem));
+                existingCartItem.appendChild(deleteButton);
             } else {
                 // Si no existe, agregar un nuevo elemento al carrito
                 const cartItem = document.createElement('div');
@@ -263,6 +270,12 @@
                 const [nombre, cantidad] = item.textContent.split(' x ');
                 return { nombre, cantidad: parseInt(cantidad) };
             });
+
+            // al menos 1 producto en el pedido
+            if (productos.length === 0) {
+                showToast('Por favor, agrega al menos un producto al pedido', 'bg-danger');
+                return;
+            }
 
             try {
                 const response = await fetch('/dashboard/otros/pedidos/generarPedido', {
