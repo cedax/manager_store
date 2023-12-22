@@ -15,7 +15,105 @@
 
 <body>
     <div class="container mt-5">
+        <style>
+            #toast-container {
+                z-index: 999999999999999 !important;
+            }
+        </style>
+        <div id="toast-container" class="position-absolute top-0 end-0 p-3"></div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            Por politicas de la empresa no se aceptan devoluciones realizadas a credito
+        </div>
+        <br>
+        <ul id="ventas-lista"></ul>
 
+        <script>
+            function showToast(message, backgroundColor = 'bg-primary', delay = 3000) {
+                const toast = document.createElement('div');
+                toast.className = `toast ${backgroundColor}`;
+                toast.setAttribute('role', 'alert');
+                toast.setAttribute('aria-live', 'assertive');
+                toast.setAttribute('aria-atomic', 'true');
+                toast.style.marginTop = '10px';
+
+                toast.innerHTML = `
+    <div class="toast-header">
+        <strong class="me-auto">Notificación</strong>
+        <small>Justo ahora</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body text-white">
+        ${message}
+    </div>
+`;
+
+                const toastContainer = document.getElementById('toast-container');
+                toastContainer.appendChild(toast);
+
+                const toastInstance = new bootstrap.Toast(toast);
+
+                toastInstance.show();
+
+                setTimeout(() => {
+                    toastInstance.hide();
+                }, delay);
+            }
+
+            // Función para cargar y mostrar las ventas
+            async function cargarVentas() {
+                try {
+                    // Realizar la solicitud GET para obtener las ventas
+                    const response = await fetch('/dashboard/devoluciones/ventas');
+                    const ventas = await response.json();
+
+                    // Obtener el contenedor de la lista
+                    const listaVentas = document.getElementById('ventas-lista');
+
+                    // Limpiar la lista antes de volver a cargar
+                    listaVentas.innerHTML = '';
+
+                    // Iterar sobre las ventas y agregarlas a la lista
+                    ventas.forEach(venta => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `
+                <strong>Venta ${venta._id}</strong> - Cliente: ${venta.idCliente ? `${venta.idCliente.nombres} ${venta.idCliente.apellidos}` : 'Cliente no registrado'}
+                <p>Fecha de Venta: ${new Date(venta.fechaDeVenta).toLocaleDateString()}</p>
+                <p>Cantidad Total: ${venta.invoice.items.reduce((total, item) => total + item.quantity, 0)}</p>
+                <p>Productos:</p>
+                <ul>
+                    ${venta.invoice.items.map(item => `<li>${item.quantity} x ${item.item} - $${(item.amount / 100).toFixed(2)}</li>`).join('')}
+                </ul>
+                <br>
+                <button class="btn btn-danger" onclick="realizarDevolucion('${venta._id}')">Hacer Devolución</button>
+                <br><br>
+            `;
+                        listaVentas.appendChild(listItem);
+                    });
+                } catch (error) {
+                    console.error('Error al cargar las ventas:', error);
+                }
+            }
+
+            // Función para realizar la devolución
+            async function realizarDevolucion(ventaId) {
+                try {
+                    // Realizar la solicitud POST para procesar la devolución
+                    const response = await fetch(`/dashboard/devoluciones/devolucion/${ventaId}`, { method: 'POST' });
+                    const resultado = await response.json();
+
+                    // Mostrar el mensaje de éxito o error
+                    showToast(resultado.mensaje, resultado.error ? 'bg-danger' : 'bg-success');
+
+                    // Volver a cargar la lista de ventas después de la devolución
+                    cargarVentas();
+                } catch (error) {
+                    console.error('Error al realizar la devolución:', error);
+                }
+            }
+
+            // Cargar las ventas al cargar la página
+            cargarVentas();
+        </script>
     </div>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.5.0/js/bootstrap.min.js"></script>
 </body>

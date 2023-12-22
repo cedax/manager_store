@@ -1,3 +1,4 @@
 config-personalizado.ini
 node_modules
 .env
+/app/public/tickets
