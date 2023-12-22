@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Proveedor = require('../../../models/proveedor');
 const Pedido = require('../../../models/pedido');
+const PDFDocument = require('pdfkit');
 
 router.get('/', async (req, res) => {
     res.render('./dashboard/otros/pedidos', {
@@ -147,6 +148,53 @@ router.delete('/eliminarPedido/:pedidoId', async (req, res) => {
     } catch (error) {
         console.error('Error al eliminar el pedido:', error);
         res.status(500).json({ error: 'Error al eliminar el pedido.' });
+    }
+});
+
+
+router.get('/gasto-total', async (req, res) => {
+    try {
+        // Calcula el gasto total
+        const resultado = await Pedido.aggregate([
+            {
+                $unwind: '$productos'
+            },
+            {
+                $lookup: {
+                    from: 'productos',
+                    localField: 'productos.nombre',
+                    foreignField: 'nombre',
+                    as: 'detalleProducto'
+                }
+            },
+            {
+                $unwind: '$detalleProducto'
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalGastado: { $sum: { $multiply: ['$productos.cantidad', '$detalleProducto.precio'] } }
+                }
+            }
+        ]);
+
+        const totalGastado = resultado.length > 0 ? resultado[0].totalGastado / 100 : 0;
+
+        // Crear un nuevo documento PDF
+        const doc = new PDFDocument();
+
+        // Configurar encabezado y pie de página
+        doc.fontSize(16).text('Gasto Total en Pedidos', { align: 'center' });
+        doc.fontSize(14).text(`Total Gastado: $${totalGastado.toFixed(2)}`, { align: 'center' });
+
+        // Envía el PDF como respuesta al cliente
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=gasto_total.pdf');
+        doc.pipe(res);
+        doc.end();
+    } catch (error) {
+        console.error('Error al generar el PDF de gasto total:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
 

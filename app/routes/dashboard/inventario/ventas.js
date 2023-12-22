@@ -341,6 +341,10 @@ const descontarProducto = async function(compraData){
 router.post('/efectivo', async (req, res) => {
     const compraData = req.body; // Datos de la compra enviados desde el cliente
 
+    if (compraData.clientId == '') {
+        compraData.clientId = '6584ff01432f549c127ccb41';
+    }
+
     // Obtén la fecha actual
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -448,5 +452,149 @@ router.post('/efectivo', async (req, res) => {
 
 });
 
+router.get('/totalVentas', async (req, res) => {
+    try {
+        // Obtener todas las ventas
+        const ventas = await Venta.find();
+
+        // Sumar los subtotales y los pagos
+        const totalSubtotal = ventas.reduce((total, venta) => total + (parseFloat(venta.invoice.subtotal) / 100), 0);
+        const totalPaid = ventas.reduce((total, venta) => total + (parseFloat(venta.invoice.paid) / 100), 0);
+
+        // Crear el JSON de respuesta
+        const totalVentasJson = {
+            totalSubtotal: parseFloat(totalSubtotal.toFixed(2)),
+            totalPaid: parseFloat(totalPaid.toFixed(2)),
+            total: parseFloat((totalSubtotal + totalPaid).toFixed(2)),
+        };
+
+        res.json(totalVentasJson);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener el total de ventas' });
+    }
+});
+
+router.get('/descargarPDF', async (req, res) => {
+    try {
+        let totalGeneral = 0;
+
+        // Obtener todas las ventas
+        const ventas = await Venta.find().populate('idCliente', 'nombres apellidos');
+
+        // Crear un nuevo documento PDF
+        const doc = new PDFDocument();
+
+        // Configurar encabezado
+        doc.fontSize(16).text('Ingresos totales', { align: 'center' });
+        doc.moveDown();
+
+        // Verificar si hubo ventas hoy
+        if (ventas.length === 0) {
+            doc.fontSize(14).text('No se realizaron ventas.', { align: 'center' });
+        } else {
+            // Iterar sobre cada venta del día
+            ventas.forEach((venta, index) => {
+                const totalVenta = calcularTotalVenta(venta.invoice);
+
+                // Agregar información de la venta al PDF
+                doc.fontSize(14).text(`Venta ${index + 1} - Cliente: ${venta.idCliente ? `${venta.idCliente.nombres} ${venta.idCliente.apellidos}` : 'Cliente no registrado'}`, { underline: true });
+                doc.moveDown();
+                doc.fontSize(12).text('Detalle de la Venta:');
+
+                // Iterar sobre cada producto en la venta
+                venta.invoice.items.forEach(item => {
+                    // Agregar información del producto al PDF
+                    doc.text(`- ${item.quantity} x ${item.item} - $${item.amount / 100}`);
+                });
+
+                // Agregar total de la venta al PDF
+                doc.fontSize(12).text(`Total de la Venta: $${(totalVenta / 100).toFixed(2)}`);
+                doc.moveDown();
+
+                // Calcular el total general
+                totalGeneral += totalVenta;
+            });
+
+            // Agregar el total general al PDF
+            doc.fontSize(16).text(`Total: $${(totalGeneral / 100).toFixed(2)}`, { align: 'center' });
+        }
+
+        // Enviar el PDF como respuesta al cliente
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=reporte_ventas_hoy.pdf');
+        doc.pipe(res);
+        doc.end();
+    } catch (error) {
+        console.error('Error al generar el PDF de ventas hoy:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+router.get('/generar-pdf-ventas-hoy', async (req, res) => {
+    try {
+        let totalGeneral = 0;
+
+        // Obtener las ventas del día de hoy
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const ventasHoy = await Venta.find({
+            fechaDeVenta: { $gte: today, $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) },
+        }).populate('idCliente', 'nombres apellidos');
+
+        // Crear un nuevo documento PDF
+        const doc = new PDFDocument();
+
+        // Configurar encabezado
+        doc.fontSize(16).text('Corte de caja del Día', { align: 'center' });
+        doc.moveDown();
+
+        // Verificar si hubo ventas hoy
+        if (ventasHoy.length === 0) {
+            doc.fontSize(14).text('No se realizaron ventas el día de hoy.', { align: 'center' });
+        } else {
+            // Iterar sobre cada venta del día
+            ventasHoy.forEach((venta, index) => {
+                const totalVenta = calcularTotalVenta(venta.invoice);
+
+                // Agregar información de la venta al PDF
+                doc.fontSize(14).text(`Venta ${index + 1} - Cliente: ${venta.idCliente ? `${venta.idCliente.nombres} ${venta.idCliente.apellidos}` : 'Cliente no registrado'}`, { underline: true });
+                doc.moveDown();
+                doc.fontSize(12).text('Detalle de la Venta:');
+
+                // Iterar sobre cada producto en la venta
+                venta.invoice.items.forEach(item => {
+                    // Agregar información del producto al PDF
+                    doc.text(`- ${item.quantity} x ${item.item} - $${item.amount / 100}`);
+                });
+
+                // Agregar total de la venta al PDF
+                doc.fontSize(12).text(`Total de la Venta: $${(totalVenta / 100).toFixed(2)}`);
+                doc.moveDown();
+
+                // Calcular el total general
+                totalGeneral += totalVenta;
+            });
+
+            // Agregar el total general al PDF
+            doc.fontSize(16).text(`Total del dia: $${(totalGeneral / 100).toFixed(2)}`, { align: 'center' });
+        }
+
+        // Enviar el PDF como respuesta al cliente
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=reporte_ventas_hoy.pdf');
+        doc.pipe(res);
+        doc.end();
+    } catch (error) {
+        console.error('Error al generar el PDF de ventas hoy:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// Función para calcular el total de una venta
+function calcularTotalVenta(invoice) {
+    return parseFloat(invoice.subtotal) + parseFloat(invoice.paid);
+}
 
 module.exports = router;

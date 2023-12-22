@@ -38,9 +38,15 @@ router.post('/buscar', async (req, res) => {
     try {
         const { nombre, correo, numero } = req.body;
 
+        // Define el ID del usuario que se debe omitir
+        const idUsuarioOmitir = '6584ff01432f549c127ccb41';
+
         // Define un objeto de búsqueda con los campos proporcionados
-        const filtroBusqueda = {};
-        if (nombre) filtroBusqueda.nombres = nombres;
+        const filtroBusqueda = {
+            _id: { $ne: idUsuarioOmitir } // Excluir el usuario con el ID especificado
+        };
+
+        if (nombre) filtroBusqueda.nombres = nombre;
         if (correo) filtroBusqueda.correo = correo;
         if (numero) filtroBusqueda.numero = numero;
 
@@ -72,9 +78,18 @@ router.get('/correo/:userId', async (req, res) => {
 });
 
 router.get('/json', async (req, res) => {
-    const clientes = await Cliente.find();
-    res.json(clientes);
+    try {
+        const clientes = await Cliente.find();
+
+        const clientesFiltrados = clientes.filter(cliente => cliente._id.toString() !== '6584ff01432f549c127ccb41');
+
+        res.json(clientesFiltrados);
+    } catch (error) {
+        console.error('Error al obtener clientes:', error);
+        res.status(500).json({ error: 'Error al obtener clientes' });
+    }
 });
+
 
 // Ruta para agregar una nueva deuda a un cliente
 router.post('/agregarDeuda/:clienteId', async (req, res) => {

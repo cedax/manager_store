@@ -32,6 +32,7 @@ function obtenerTicketPDF(ticketId) {
 
 function enviarCompraAlServidor(SentCorreo) {
     let clienteId = getCookie("clienteId");
+    
     // Obtener la información de la compra, como la lista de productos y el total
     const cartData = getCookie("cart");
     const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('$', ''));
@@ -98,6 +99,9 @@ function enviarCompraAlServidor(SentCorreo) {
         .catch(error => {
             console.error('Error al enviar la compra al servidor:', error);
         });
+
+    deleteCookie("clienteId");
+    deleteCookie("pagoCredito");
 }
 
 function generarTicket(efectivo) {
