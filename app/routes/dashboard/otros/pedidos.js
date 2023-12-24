@@ -178,7 +178,7 @@ router.get('/gasto-total', async (req, res) => {
             }
         ]);
 
-        const totalGastado = resultado.length > 0 ? resultado[0].totalGastado / 100 : 0;
+        const totalGastado = resultado.length > 0 ? resultado[0].totalGastado : 0;
 
         // Crear un nuevo documento PDF
         const doc = new PDFDocument();

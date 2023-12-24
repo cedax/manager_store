@@ -431,7 +431,13 @@ $('#nuevoCliente').click(function () {
 document.addEventListener('DOMContentLoaded', function () {
     let cartData = getCookie("cart");
     cartData = cartData ? JSON.parse(cartData) : [];
-    
+    /*
+    if (cartData.length > 0) {
+        updateCartView(cartData);
+        actualizarExistenciaEnTabla(cartData);
+    }
+    */
+   
     // limpiar cartData
     cartData = [];
     setCookie('cart', JSON.stringify(cartData), 1);
