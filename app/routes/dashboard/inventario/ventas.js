@@ -397,6 +397,7 @@ router.post('/efectivo', async (req, res) => {
 
         const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
         const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
+        //const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
         const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
         
         resultFinal.ventaRegistrada = true;
