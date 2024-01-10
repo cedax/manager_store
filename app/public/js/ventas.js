@@ -59,6 +59,9 @@ function enviarCompraAlServidor(SentCorreo) {
     })
         .then(response => response.json())
         .then(data => {
+
+            console.log(data);
+            
             if (data.ticket) {
                 obtenerTicketPDF(data.ticket);
                 if(SentCorreo){
@@ -93,7 +96,7 @@ function enviarCompraAlServidor(SentCorreo) {
                     });
                 }, 3000);
             } else {
-                showToast('Error al generar el PDF de compra', 'bg-danger');
+                showToast(data.error, 'bg-danger');
             }
         })
         .catch(error => {
@@ -369,6 +372,38 @@ function realizarPago() {
 $('#clear-cart-button').click(function () {
     deleteCookie('cart');
     updateCartView([]);
+    
+    $('#checkout-button').prop('disabled', true);
+    $('#clear-cart-button').prop('disabled', true);
+
+    $.get('/dashboard/inventario/productos/json', function (data) {
+        // Limpiar la tabla antes de pintarla nuevamente 
+        $('#productTable').DataTable().clear().destroy();
+        $('#productTable').DataTable({
+            data: data,
+            columns: [
+                { data: 'nombre', title: 'Nombre' },
+                { data: 'precio', title: 'Precio' },
+                { data: 'existencia', title: 'Existencia' },
+                {
+                    data: null,
+                    title: 'Acciones',
+                    render: function (data, type, row) {
+                        if (row.existencia > 0) {
+                            return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '"><i class="bi bi-cart-plus"></i></button>';
+                        } else {
+                            return '<button class="btn btn-success add-to-cart" data-product-id="' + row._id + '" disabled><i class="bi bi-cart-plus"></i></button>';
+                        }
+                    }
+                }
+            ]
+        });
+
+        showToast('El carrito ha sido limpiado', 'bg-success');
+        
+        $('#checkout-button').prop('disabled', false);
+        $('#clear-cart-button').prop('disabled', false);
+    });
 });
 
 $('#opcionesModal').on('show.bs.modal', function (e) {
@@ -502,7 +537,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function cobrarConCredito() {
         let pagoCredito = getCookie("pagoCredito");
-        if (pagoCredito) {
+
+        if (pagoCredito == 'true') {
             let clienteId = getCookie("clienteId");
             const total = parseFloat(document.getElementById('total').textContent.replace('$', ''));
             

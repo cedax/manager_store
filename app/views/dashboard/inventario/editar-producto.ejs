@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="/dashboard/inventario/productos/editar/<%= producto._id %>">
+                    <form id="editarProducto" method="POST">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre del Producto:</label>
                             <input type="text" id="nombre" name="nombre" class="form-control"
@@ -28,6 +28,7 @@
                             <input type="number" id="existencia" name="existencia" class="form-control"
                                 value="<%= producto.existencia %>" required>
                         </div>
+                        <input type="text" name="idPr" id="idPr" value="<%= producto._id %>" hidden>
                         <button type="submit" class="btn btn-primary mt-4">Guardar Cambios</button>
                     </form>
                 </div>
@@ -35,3 +36,45 @@
         </div>
     </div>
 </div>
+
+<script>
+    // editarProducto
+    $('#editarProducto').submit(function (e) {
+        e.preventDefault();
+        $('#editarProducto button[type="submit"]').attr('disabled', true);
+
+        // Expresión regular para verificar si hay al menos tres letras de A-Z o a-z
+        var regex = /^(?=(?:[^\d]*\d){0,5}[^\d]*$)[a-zA-Z\d\s]{3,}$/;
+
+
+        if (!regex.test($('#nombre').val())) {
+            addToast('Por favor, ingresa un nombre con al menos tres letras y maximo 5 numeros.', 'danger', '¡Error!');
+            $('#editarProducto button[type="submit"]').attr('disabled', false);
+            return;
+        }
+
+        // Verifica que no tenga mas de 5 numeros a lo largo del string, permite espacios
+
+
+        // Verificar que todos los campos esten llenos
+        if ($('#nombre').val() == '' || $('#precio').val() == '' || $('#existencia').val() == '') {
+            addToast('Por favor, llena todos los campos.', 'danger', '¡Error!');
+            $('#editarProducto button[type="submit"]').attr('disabled', false);
+            return;
+        }
+
+        let prID = $('#idPr').val();
+
+        $.post('/dashboard/inventario/productos/editar/'+prID, $(this).serialize(), function (data, status, error) {
+            console.log(data);
+            if (data.success) {
+                $('#editarProducto').trigger('reset');
+                $('#editarProducto button[type="submit"]').attr('disabled', false);
+                window.location.href = '/dashboard/inventario/productos?status=success';
+            } else {
+                addToast(data.message, 'danger', '¡Error!');
+                $('#editarProducto button[type="submit"]').attr('disabled', false);
+            }
+        });
+    });
+</script>

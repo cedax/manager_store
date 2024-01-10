@@ -16,6 +16,67 @@
 </head> 
 
 <body>
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            padding: 15px;
+        }
+    </style>
+    <div class="toast-container"></div>
+    
+    <script>
+        function addToast(message, type = 'success', messageTitle = 'Mensaje') {
+            let toast = document.createElement('div')
+            toast.classList.add('toast')
+            toast.classList.add('align-items-center')
+            toast.classList.add(`text-bg-${type}`)
+            toast.classList.add('border-0')
+            toast.setAttribute('role', 'alert')
+            toast.setAttribute('aria-live', 'assertive')
+            toast.setAttribute('aria-atomic', 'true')
+    
+            let toastHeader = document.createElement('div')
+            toastHeader.classList.add('toast-header')
+    
+            let toastStrong = document.createElement('strong')
+            toastStrong.classList.add('me-auto')
+            toastStrong.innerText = messageTitle
+    
+            let toastSmall = document.createElement('small')
+            toastSmall.classList.add('text-body-secondary')
+            toastSmall.innerText = 'Ahora mismo'
+    
+            let toastButton = document.createElement('button')
+            toastButton.classList.add('btn-close')
+            toastButton.setAttribute('data-bs-dismiss', 'toast')
+            toastButton.setAttribute('aria-label', 'Close')
+    
+            let toastBody = document.createElement('div')
+            toastBody.classList.add('toast-body')
+            toastBody.innerText = message
+    
+            toastHeader.appendChild(toastStrong)
+            toastHeader.appendChild(toastSmall)
+            toastHeader.appendChild(toastButton)
+    
+            toast.appendChild(toastHeader)
+            toast.appendChild(toastBody)
+    
+            document.querySelector('.toast-container').appendChild(toast)
+    
+            let options = {
+                animation: true,
+                autohide: true,
+                delay: 5000
+            }
+    
+            let toastObj = new bootstrap.Toast(toast, options)
+            toastObj.show()
+        }
+    </script>
+    
     <!-- Dashboard -->
     <div class="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
         <!-- Vertical Navbar -->

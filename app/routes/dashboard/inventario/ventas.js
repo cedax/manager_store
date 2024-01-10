@@ -8,7 +8,15 @@ const nodemailer = require('nodemailer');
 const Venta = require('../../../models/venta');
 const axios = require('axios');
 const Producto = require('../../../models/producto');
+const https = require('https');
 
+const instance = axios.create({
+    httpsAgent: new https.Agent({  
+        rejectUnauthorized: false
+    })
+});
+
+  
 paypal.configure({
     mode: 'sandbox',
     client_id: process.env.PAYPAL_CLIENT_ID,
@@ -324,6 +332,14 @@ const descontarProducto = async function(compraData){
 
 // Ruta de la solicitud POST para crear el ticket
 router.post('/efectivo', async (req, res) => {
+    let resultFinal = {
+        ventaRegistrada: false,
+        ticket: '',
+        error: '',
+        correoEnviado: false,
+        correoEnvio: ''
+    }
+
     const compraData = req.body; // Datos de la compra enviados desde el cliente
 
     if (compraData.clientId == '') {
@@ -374,20 +390,37 @@ router.post('/efectivo', async (req, res) => {
 
     createInvoice(invoice, pdfFilePath);
 
-    const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
-    //const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
-    const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
-    const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
+    // Inserta la venta en MongoDB
+    const nuevaVenta = new Venta({
+        idCliente: compraData.clientId,
+        invoice: invoice,
+    });
 
+    nuevaVenta.save().then((venta) => {
+        resultFinal.ventaRegistrada = true;
+        resultFinal.ticket = urlDelServidor;
+        descontarProducto(compraData);
+    }).catch((error) => {
+        console.error('Error al insertar la venta en MongoDB:', error);
+        resultFinal.error = 'Error al registrar la venta';
+    });
+
+    const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
+    
+    const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
+    //const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
+    const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
+  
     if (compraData.correo) {
         let client_id = compraData.clientId;
         let correoCliente = ''
         try {
-            const response = await axios.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
-            correoCliente = response.data.correo
+            const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
+            correoCliente = response.data.correo;
+            resultFinal.correoEnvio = correoCliente;
         } catch (error) {
-            console.error('Error al obtener el correo del cliente:', error);
-            throw error;
+            console.error(error);
+            resultFinal.error = 'Error al obtener el correo del cliente';
         }
 
         if (correoCliente != '') {
@@ -411,31 +444,21 @@ router.post('/efectivo', async (req, res) => {
                 // Envía el correo
                 transporter.sendMail(mailOptions, function (error, info) {
                     if (error) {
-                        console.error('Error al enviar el correo:', error);
-                        res.status(500).json({ error: 'Error al enviar el correo' });
+                        console.error(error);
+                        resultFinal.error = 'Error al enviar el correo';
                     } else {
                         console.log('Correo enviado: ' + info.response);
+                        resultFinal.correoEnviado = true;
                     }
                 });
             } catch (error) {
                 console.error(error);
+                resultFinal.error = 'Error al enviar el correo';
             }
         }
     }
-    // Inserta la venta en MongoDB
-    const nuevaVenta = new Venta({
-        idCliente: compraData.clientId,
-        invoice: invoice,
-    });
 
-    nuevaVenta.save().then((venta) => {
-        res.json({ ticket: urlDelServidor });
-        descontarProducto(compraData);
-    }).catch((error) => {
-        console.error('Error al insertar la venta en MongoDB:', error);
-        res.status(500).json({ error: 'Error al registrar la venta' });
-    });
-
+    res.status(200).json(resultFinal);
 });
 
 router.get('/totalVentas', async (req, res) => {

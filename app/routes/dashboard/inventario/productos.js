@@ -18,10 +18,24 @@ router.get('/', async (req, res) => {
 // Ruta para manejar el envío del formulario y agregar un nuevo producto
 router.post('/nuevo', async (req, res) => {
     try {
+        // Buscar si el nombre ya existe o coincide con alguno de la base de datos
+        const producto = await Producto.findOne({ nombre: req.body.nombre });
+        if (producto) {
+            res.status(200).json({ success: false, message: 'El producto ya existe' });
+            return;
+        }
+
+        // buscar si existe una coincidencia parcial en la base de datos
+        const productoCoincidente = await Producto.findOne({ nombre: { $regex: req.body.nombre, $options: 'i' } });
+        if (productoCoincidente) {
+            res.status(200).json({ success: false, message: 'El nombre del producto es muy parecido a alguno ya registrado' });
+            return;
+        }
+
         const { nombre, precio, existencia } = req.body;
         const nuevoProducto = new Producto({ nombre, precio, existencia });
         await nuevoProducto.save();
-        res.redirect('/dashboard/inventario/productos?prodNuevoSuccess=1#rg-prd');
+        res.status(200).json({ success: true, message: 'Producto agregado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al crear un nuevo producto' });
     }
@@ -60,9 +74,30 @@ router.get('/eliminar/:id', async (req, res) => {
 });
 
 router.post('/editar/:id', async (req, res) => {
+    const productoId = req.params.id; // Obtén el ID del producto de los parámetros de la URL
+
     try {
         const { nombre, precio, existencia } = req.body;
-        const productoId = req.params.id; // Obtén el ID del producto de los parámetros de la URL
+
+        // Buscar si el nombre ya existe o coincide con alguno de la base de datos pero excluye al id actual
+        const productoEdit = await Producto.findOne({ nombre: req.body.nombre, _id: { $ne: productoId } });
+        
+        if (productoEdit) {
+            res.status(200).json({ success: false, message: 'El producto ya existe' });
+            return;
+        }
+
+        // Buscar si existe algún producto con un nombre similar pero diferente al que se está registrando
+        const productoExistente = await Producto.findOne({
+            nombre: { $regex: new RegExp(nombre, 'i') }, // Búsqueda insensible a mayúsculas y minúsculas
+            _id: { $ne: productoId } // Excluir el producto actual de la búsqueda
+        });
+
+        if (productoExistente) {
+            res.status(200).json({ success: false, message: 'El nombre del producto es muy parecido a alguno ya registrado' });
+            return;
+        }
+
         const producto = await Producto.findById(productoId);
 
         // Actualiza los datos del producto con los valores del formulario
@@ -73,7 +108,7 @@ router.post('/editar/:id', async (req, res) => {
         // Guarda el producto actualizado en la base de datos
         await producto.save();
 
-        res.redirect('/dashboard/inventario/productos'); // Redirige de nuevo a la lista de productos
+        res.status(200).json({ success: true, message: 'Producto actualizado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al editar el producto' });
     }

@@ -86,7 +86,7 @@
                             Producto creado con éxito.
                         </div>
                         <% } %>
-                            <form method="POST" action="/dashboard/inventario/productos/nuevo">
+                            <form id="crearProducto" method="POST" action="/dashboard/inventario/productos/nuevo">
                                 <div class="mb-3">
                                     <label for="nombre" class="form-label">Nombre del Producto:</label>
                                     <input type="text" id="nombre" name="nombre" class="form-control" required>
@@ -130,3 +130,67 @@
 
     </div>
 </div>
+
+
+<script>
+    if (window.location.search.includes('status=success')) {
+        addToast('Accion realizada correctamente.', 'success', '¡Éxito!');
+        window.history.replaceState({}, document.title, "/" + "dashboard/inventario/productos");
+    }
+
+    // crearProducto
+    $('#crearProducto').submit(function (e) {
+        e.preventDefault();
+        $('#crearProducto button[type="submit"]').attr('disabled', true);
+
+
+        // Expresión regular para verificar si hay al menos tres letras de A-Z o a-z y maximo 5 numeros
+        var regex = /^(?=(?:[^\d]*\d){0,5}[^\d]*$)[a-zA-Z\d\s]{3,}$/;
+
+        if (!regex.test($('#nombre').val())) {
+            addToast('Por favor, ingresa un nombre con al menos tres letras y maximo 5 numeros.', 'danger', '¡Error!');
+            $('#crearProducto button[type="submit"]').attr('disabled', false);
+            return;
+        }
+
+        // Verificar que todos los campos esten llenos
+        if ($('#nombre').val() == '' || $('#precio').val() == '' || $('#existencia').val() == '') {
+            addToast('Por favor, llena todos los campos.', 'danger', '¡Error!');
+            $('#crearProducto button[type="submit"]').attr('disabled', false);
+            return;
+        }
+
+        $.post('/dashboard/inventario/productos/nuevo', $(this).serialize(), function (data, status, error) {
+            console.log(data);
+            if (data.success) {
+                addToast('Producto creado con éxito.', 'success', '¡Éxito!');
+                $('#crearProducto').trigger('reset');
+                $('#crearProducto button[type="submit"]').attr('disabled', false);
+
+                $.get('/dashboard/inventario/productos/json', function (data) {
+                    $('#productTable').DataTable().destroy();
+
+                    $('#productTable').DataTable({
+                        data: data,
+                        columns: [
+                            { data: 'nombre', title: 'Nombre' },
+                            { data: 'precio', title: 'Precio' },
+                            { data: 'existencia', title: 'Existencia' },
+                            {
+                                data: null,
+                                title: 'Acciones',
+                                render: function (data, type, row) {
+                                    return '<a href="/dashboard/inventario/productos/editar/' + row._id + '" class="btn btn-primary">Editar</a> ' +
+                                        '<a href="/dashboard/inventario/productos/eliminar/' + row._id + '" class="btn btn-danger">Eliminar</a>';
+                                }
+                            }
+                        ]
+                    });
+                });
+            } else {
+                addToast(data.message, 'danger', '¡Error!');
+                $('#crearProducto button[type="submit"]').attr('disabled', false);
+            }
+        });
+    });
+</script>
