@@ -59,16 +59,25 @@ function enviarCompraAlServidor(SentCorreo) {
     })
         .then(response => response.json())
         .then(data => {
+            if (data.error === '') {
+                showToast('Ticket generado con éxito, se descargara en tu equipo dentro de 4 segundos', 'bg-success', 5000);
 
-            console.log(data);
-            
-            if (data.ticket) {
-                obtenerTicketPDF(data.ticket);
-                if(SentCorreo){
-                    showToast('Compra y envio realizados con éxito, el ticket se descargo en tu equipo', 'bg-success', 5000);
+                setTimeout(() => {
+                    obtenerTicketPDF(data.ticket);
+                }, 4000);
+
+                if (data.correoEnviado) {
+                    showToast(`Se envió un correo a ${data.correoEnvio} con el ticket de la compra`, 'bg-success', 5000);
                 }else {
-                    showToast('Compra realizada con éxito, el ticket se descargo en tu equipo', 'bg-success', 5000);
+                    showToast(`No se pudo enviar el correo a ${data.correoEnvio}`, 'bg-danger', 5000);
                 }
+
+                if (data.ventaRegistrada) {
+                    showToast('La venta se registró correctamente', 'bg-success', 5000);
+                }else {
+                    showToast('No se pudo registrar la venta', 'bg-danger', 5000);
+                }
+
                 // Actualizar tabla, esto se puede agregar a una funcion
                 setTimeout(function () {
                     $.get('/dashboard/inventario/productos/json', function (data) {

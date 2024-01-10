@@ -332,133 +332,123 @@ const descontarProducto = async function(compraData){
 
 // Ruta de la solicitud POST para crear el ticket
 router.post('/efectivo', async (req, res) => {
-    let resultFinal = {
-        ventaRegistrada: false,
-        ticket: '',
-        error: '',
-        correoEnviado: false,
-        correoEnvio: ''
-    }
+    try {
+        let resultFinal = {
+            ventaRegistrada: false,
+            ticket: '',
+            error: '',
+            correoEnviado: false,
+            correoEnvio: ''
+        };
 
-    const compraData = req.body; // Datos de la compra enviados desde el cliente
+        const compraData = req.body;
 
-    if (compraData.clientId == '') {
-        compraData.clientId = '6584ff01432f549c127ccb41';
-    }
+        if (compraData.clientId == '') {
+            compraData.clientId = '6584ff01432f549c127ccb41';
+        }
 
-    // Obtén la fecha actual
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Asegúrate de obtener un número de dos dígitos
-    const day = String(currentDate.getDate()).padStart(2, '0'); // Asegúrate de obtener un número de dos dígitos
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
 
-    // Define la ruta donde se almacenará el archivo PDF
-    const pdfFolder = path.join(__dirname, '..', '..', '..', 'public', 'tickets', String(year), month, day);
-    const pdfFileName = `ticket-${Date.now()}.pdf`;
-    const pdfFilePath = path.join(pdfFolder, pdfFileName);
+        const pdfFolder = path.join(__dirname, '..', '..', '..', 'public', 'tickets', String(year), month, day);
+        const pdfFileName = `ticket-${Date.now()}.pdf`;
+        const pdfFilePath = path.join(pdfFolder, pdfFileName);
 
-    // Asegúrate de que la carpeta de destino exista, o créala si no existe
-    fs.mkdirSync(pdfFolder, { recursive: true });
+        fs.mkdirSync(pdfFolder, { recursive: true });
 
-    const invoice = {
-        shipping: {
-            name: "",
-            address: "",
-            city: "",
-            state: "",
-            country: "",
-            postal_code: 94111
-        },
-        items: [],
-        subtotal: 8000,
-        paid: 8000,
-        invoice_nr: 1234
-    };
+        const invoice = {
+            shipping: {
+                name: "",
+                address: "",
+                city: "",
+                state: "",
+                country: "",
+                postal_code: 94111
+            },
+            items: [],
+            subtotal: 8000,
+            paid: 8000,
+            invoice_nr: 1234
+        };
 
-    compraData.productos.forEach((producto) => {
-        const price = ajustarPrecio(producto.price);
+        compraData.productos.forEach((producto) => {
+            const price = ajustarPrecio(producto.price);
 
-        invoice.items.push({
-            item: producto.name,
-            quantity: 1,
-            amount: price
+            invoice.items.push({
+                item: producto.name,
+                quantity: 1,
+                amount: price
+            });
         });
-    });
 
-    invoice.subtotal = ajustarPrecio(compraData.subtotal);
-    invoice.paid = ajustarPrecio(compraData.iva);
+        invoice.subtotal = ajustarPrecio(compraData.subtotal);
+        invoice.paid = ajustarPrecio(compraData.iva);
 
-    createInvoice(invoice, pdfFilePath);
+        createInvoice(invoice, pdfFilePath);
 
-    // Inserta la venta en MongoDB
-    const nuevaVenta = new Venta({
-        idCliente: compraData.clientId,
-        invoice: invoice,
-    });
+        const nuevaVenta = new Venta({
+            idCliente: compraData.clientId,
+            invoice: invoice,
+        });
 
-    nuevaVenta.save().then((venta) => {
+        await nuevaVenta.save();
+
+        const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
+        const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
+        const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
+        
         resultFinal.ventaRegistrada = true;
         resultFinal.ticket = urlDelServidor;
         descontarProducto(compraData);
-    }).catch((error) => {
-        console.error('Error al insertar la venta en MongoDB:', error);
-        resultFinal.error = 'Error al registrar la venta';
-    });
 
-    const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
-    
-    const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
-    //const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
-    const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
-  
-    if (compraData.correo) {
-        let client_id = compraData.clientId;
-        let correoCliente = ''
-        try {
-            const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
-            correoCliente = response.data.correo;
-            resultFinal.correoEnvio = correoCliente;
-        } catch (error) {
-            console.error(error);
-            resultFinal.error = 'Error al obtener el correo del cliente';
-        }
-
-        if (correoCliente != '') {
-            const transporter = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: {
-                    user: 'sedax.contact@gmail.com',
-                    pass: 'itdldpbvhwqjcvsb'
-                }
-            });
+        if (compraData.correo) {
+            let client_id = compraData.clientId;
+            let correoCliente = '';
 
             try {
-                const mailOptions = {
-                    from: 'sedax.contact@gmail.com',
-                    to: correoCliente,
-                    subject: 'Recibo de compra - No responder',
-                    text: 'Gracias por tu compra. Adjunto encontrarás el ticket.',
-                    attachments: [{ path: urlDelServidor }]
-                };
-
-                // Envía el correo
-                transporter.sendMail(mailOptions, function (error, info) {
-                    if (error) {
-                        console.error(error);
-                        resultFinal.error = 'Error al enviar el correo';
-                    } else {
-                        console.log('Correo enviado: ' + info.response);
-                        resultFinal.correoEnviado = true;
-                    }
-                });
+                const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
+                correoCliente = response.data.correo;
+                resultFinal.correoEnvio = correoCliente;
             } catch (error) {
                 console.error(error);
-                resultFinal.error = 'Error al enviar el correo';
+                resultFinal.error = 'Error al obtener el correo del cliente';
+            }
+
+            if (correoCliente != '') {
+                const transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: {
+                        user: 'sedax.contact@gmail.com',
+                        pass: 'itdldpbvhwqjcvsb'
+                    }
+                });
+
+                try {
+                    const mailOptions = {
+                        from: 'sedax.contact@gmail.com',
+                        to: correoCliente,
+                        subject: 'Recibo de compra - No responder',
+                        text: 'Gracias por tu compra. Adjunto encontrarás el ticket.',
+                        attachments: [{ path: urlDelServidor }]
+                    };
+
+                    await transporter.sendMail(mailOptions);
+
+                    resultFinal.correoEnviado = true;
+                } catch (error) {
+                    console.error(error);
+                    resultFinal.error = 'Error al enviar el correo';
+                }
             }
         }
-    }
 
-    res.status(200).json(resultFinal);
+        res.status(200).json(resultFinal);
+    } catch (error) {
+        console.error('Error en la función principal:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
 });
 
 router.get('/totalVentas', async (req, res) => {
