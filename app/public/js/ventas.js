@@ -382,13 +382,81 @@ function realizarPago() {
     const cartData = getCookie("cart");
     const cart = cartData ? JSON.parse(cartData) : [];
 
-    if (cart.length === 0) {
-        showToast('No hay productos en el carrito', 'bg-danger');
-        return;
-    } else {
-        $('#opcionesModal').modal('show');
+    // Agregamos la validacion para ver si se hizo un pago con tarjeta anterior al darle al boton pagar
+    let cartDataBackup = getCookie("cartBackup");
+    cartDataBackup = cartDataBackup ? JSON.parse(cartDataBackup) : [];
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        let results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    // comprobamos si cartDataBackup tiene productos
+    if (cartDataBackup.length > 0) {
+        // si tiene productos, significa que pago con tarjeta 
+        let paymentParam = getUrlParameter('payment');
+        if (paymentParam == '1') {
+            setCookie('cart', JSON.stringify(cartDataBackup), 1);
+            console.log('Pago con tarjeta');
+            // detectar si se cierra el modal de ser asi volver a abrirlo
+            $('#confirmarCorreoModal').on('hidden.bs.modal', function (e) {
+                $('#confirmarCorreoModal').modal('show');
+            });
+            
+            // si pago con tarjeta, entonces abrir el modal para confirmar el pago
+            $('#confirmarCorreoModal').modal('show');
+        } else {
+            // si no pago con tarjeta, entonces eliminar el carrito de respaldo
+            deleteCookie('cartBackup');
+        }
+    }else {
+        if (cart.length === 0) {
+            showToast('No hay productos en el carrito', 'bg-danger');
+            return;
+        } else {
+            $('#opcionesModal').modal('show');
+        }
     }
 }
+
+// detectar click en confirmarCorreoModal
+$('#confirmarCorreoModal').on('click', function (e) {
+    // Agregamos la validacion para ver si se hizo un pago con tarjeta anterior al darle al boton pagar
+    let cartDataBackup = getCookie("cartBackup");
+    cartDataBackup = cartDataBackup ? JSON.parse(cartDataBackup) : [];
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        let regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        let results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    // comprobamos si cartDataBackup tiene productos
+    if (cartDataBackup.length > 0) {
+        // si tiene productos, significa que pago con tarjeta 
+        let paymentParam = getUrlParameter('payment');
+        if (paymentParam == '1') {
+            console.log('Pago con tarjeta');
+            setCookie('cart', JSON.stringify(cartDataBackup), 1);
+            // detectar si se cierra el modal de ser asi volver a abrirlo
+            $('#confirmarCorreoModal').on('hidden.bs.modal', function (e) {
+                $('#confirmarCorreoModal').modal('show');
+            });
+            
+            // si pago con tarjeta, entonces abrir el modal para confirmar el pago
+            $('#confirmarCorreoModal').modal('show');
+        } else {
+            // si no pago con tarjeta, entonces eliminar el carrito de respaldo
+            deleteCookie('cartBackup');
+        }
+    }else {
+        if (cart.length === 0) {
+            showToast('No hay productos en el carrito', 'bg-danger');
+            return;
+        } else {
+            $('#opcionesModal').modal('show');
+        }
+    }
+});
 
 $('#clear-cart-button').click(function () {
     deleteCookie('cart');
@@ -453,6 +521,11 @@ $('#pagoEfectivo').click(function () {
 });
 
 $('#pagoTarjeta').click(function () {
+    // Hacemos copia del carro antes de mandar a PayPal
+    let cartData = getCookie("cart");
+    let cartBackup = cartData ? JSON.parse(cartData) : [];
+    setCookie('cartBackup', JSON.stringify(cartBackup), 1);
+
     generarTicket(false);
 
     let pagoCredito = getCookie("pagoCredito");
@@ -490,16 +563,20 @@ $('#nuevoCliente').click(function () {
 document.addEventListener('DOMContentLoaded', function () {
     let cartData = getCookie("cart");
     cartData = cartData ? JSON.parse(cartData) : [];
-    /*
-    if (cartData.length > 0) {
-        updateCartView(cartData);
-        actualizarExistenciaEnTabla(cartData);
+    
+    // Al cargar la pagina verificamos si se recargo antes de un pago de tarjeta
+    let cartDataBackup = getCookie("cartBackup");
+    cartDataBackup = cartDataBackup ? JSON.parse(cartDataBackup) : [];
+    //setCookie('cartBackup', JSON.stringify(cartBackup), 1);
+    if (cartDataBackup.length > 0) {
+        updateCartView(cartDataBackup);
+        setCookie('cart', JSON.stringify(cartDataBackup), 1);
+    }else {
+        // limpiar cartData
+        cartData = [];
+        setCookie('cart', JSON.stringify(cartData), 1);
     }
-    */
    
-    // limpiar cartData
-    cartData = [];
-    setCookie('cart', JSON.stringify(cartData), 1);
 
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -604,6 +681,13 @@ document.addEventListener('DOMContentLoaded', function () {
         enviarCompraAlServidor(true);
         deleteCookie('cart');
         updateCartView([]);
+
+        let cartDataBackup = getCookie("cartBackup");
+        cartDataBackup = cartDataBackup ? JSON.parse(cartDataBackup) : [];
+        
+        if (cartDataBackup.length > 0) {
+            deleteCookie('cartBackup');
+        }
     });
 
     document.getElementById('enviarCorreoNo').addEventListener('click', function () {
@@ -612,6 +696,13 @@ document.addEventListener('DOMContentLoaded', function () {
         enviarCompraAlServidor(false);
         deleteCookie('cart');
         updateCartView([]);
+
+        let cartDataBackup = getCookie("cartBackup");
+        cartDataBackup = cartDataBackup ? JSON.parse(cartDataBackup) : [];
+
+        if (cartDataBackup.length > 0) {
+            deleteCookie('cartBackup');
+        }
     });
 
     $('#productTable').on('click', '.add-to-cart', function () {
