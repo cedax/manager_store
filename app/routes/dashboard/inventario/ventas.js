@@ -397,12 +397,12 @@ router.post('/efectivo', async (req, res) => {
 
         //const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
         const serverBaseUrl = 'https://localhost:3000'
-        //const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
         // CAMBIO AWS
+        //const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
         const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
         const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
         console.log(urlDelServidor);
-        
+
         resultFinal.ventaRegistrada = true;
         resultFinal.ticket = urlDelServidor;
         descontarProducto(compraData);

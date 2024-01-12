@@ -26,6 +26,7 @@ function obtenerTicketPDF(ticketId) {
             URL.revokeObjectURL(pdfUrl);
         })
         .catch(error => {
+            console.error('Error al obtener el PDF del ticket:', error);
             showToast('Error al obtener el PDF del ticket', 'bg-danger');
         });
 }
