@@ -2,7 +2,10 @@ let totalAmount = 0;
 let clienteID = '';
 
 function obtenerTicketPDF(ticketId) {
-    fetch(ticketId, {
+    const currentDomain = window.location.origin;
+    const ticketUrl = ticketId.replace('https://localhost:3000', currentDomain);
+
+    fetch(ticketUrl, {
         method: 'GET',
         responseType: 'blob'
     })
@@ -15,7 +18,7 @@ function obtenerTicketPDF(ticketId) {
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = pdfUrl;
-            a.download = ticketId.split('/').pop();
+            a.download = ticketUrl.split('/').pop();
 
             // Adjuntar el enlace a la página y simular un clic
             document.body.appendChild(a);
