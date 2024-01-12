@@ -417,7 +417,7 @@ router.post('/efectivo', async (req, res) => {
                 resultFinal.correoEnvio = correoCliente;
             } catch (error) {
                 console.error(error);
-                resultFinal.error = 'Error al obtener el correo del cliente';
+                resultFinal.error = 'Error al obtener el correo del cliente o esta intento enviar el correo a un cliente sin registro';
             }
 
             if (correoCliente != '') {
