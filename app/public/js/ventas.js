@@ -551,15 +551,18 @@ $('#pagoCredito').click(function () {
 
 $('#sinRegistro').click(function () {
     $('#pagoCredito').prop('disabled', true);
+    deleteCookie('enviarCorreo');
     setCookie('enviarCorreo', false, 1);
 });
 
 $('#clienteRegistrado').click(function () {
+    deleteCookie('enviarCorreo');
     setCookie('enviarCorreo', true, 1);
     $('#pagoCredito').prop('disabled', false);
 });
 
 $('#nuevoCliente').click(function () {
+    deleteCookie('enviarCorreo');
     setCookie('enviarCorreo', true, 1);
     $('#pagoCredito').prop('disabled', false);
 });
