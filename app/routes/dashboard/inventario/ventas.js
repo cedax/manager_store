@@ -414,6 +414,8 @@ router.post('/efectivo', async (req, res) => {
 
                 const userId = client_id;
 
+                const Cliente = require('../../../models/cliente');
+                
                 const cliente = await Cliente.findById(userId);
 
                 if (!cliente) {
