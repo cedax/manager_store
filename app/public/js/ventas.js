@@ -69,7 +69,9 @@ function enviarCompraAlServidor(SentCorreo) {
                 if (data.correoEnviado) {
                     showToast(`Se envió un correo a ${data.correoEnvio} con el ticket de la compra`, 'bg-success', 5000);
                 }else {
-                    showToast(`No se pudo enviar el correo a ${data.correoEnvio}`, 'bg-danger', 5000);
+                    if(data.correoEnvio != null){
+                        showToast(`No se pudo enviar el correo a ${data.correoEnvio}`, 'bg-danger', 5000);
+                    }
                 }
 
                 if (data.ventaRegistrada) {
