@@ -395,11 +395,13 @@ router.post('/efectivo', async (req, res) => {
 
         await nuevaVenta.save();
 
-        const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
+        //const serverBaseUrl = `${req.connection.encrypted ? 'https' : 'http'}://${req.headers.host}`;
+        const serverBaseUrl = 'https://localhost:3000'
         //const relativePath = path.relative('C:\\Users\\chlopez\\Desktop\\manager_store\\app\\public', pdfFilePath);
         // CAMBIO AWS
         const relativePath = path.relative('/home/ubuntu/projects/manager_store/app/public', pdfFilePath);
         const urlDelServidor = `${serverBaseUrl}/${relativePath.replace(/\\/g, '/')}`;
+        console.log(urlDelServidor);
         
         resultFinal.ventaRegistrada = true;
         resultFinal.ticket = urlDelServidor;
@@ -410,22 +412,8 @@ router.post('/efectivo', async (req, res) => {
             let correoCliente = '';
 
             try {
-                //const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
-                
-                console.log('client_id', client_id);
-
-                const userId = client_id;
-
-                const Cliente = require('../../../models/cliente');
-
-                const cliente = await Cliente.findById(userId);
-
-                if (!cliente) {
-                    correoCliente = ""    
-                }else {
-                    correoCliente = cliente.correo;
-                }
-
+                const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
+                correoCliente = response.data.correo;
                 resultFinal.correoEnvio = correoCliente;
             } catch (error) {
                 console.error(error);
