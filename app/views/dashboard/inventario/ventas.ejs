@@ -338,3 +338,11 @@
 </div>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="/js/ventas.js"></script>
+<script>
+    console.log(getCookie("enviarCorreo"));
+    if (getCookie("enviarCorreo") == "false") {
+        document.getElementById("enviarCorreoSi").style.display = "none";
+    }else {
+        document.getElementById("enviarCorreoSi").style.display = "block";
+    }
+</script>

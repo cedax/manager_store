@@ -67,9 +67,11 @@ function enviarCompraAlServidor(SentCorreo) {
                 }, 4000);
 
                 if (data.correoEnviado) {
-                    showToast(`Se envió un correo a ${data.correoEnvio} con el ticket de la compra`, 'bg-success', 5000);
+                    if(data.correoEnviado != "no-borrar-cliente@gmail.com"){
+                        showToast(`Se envió un correo a ${data.correoEnvio} con el ticket de la compra`, 'bg-success', 5000);
+                    }
                 }else {
-                    if(data.correoEnvio != null){
+                    if(data.correoEnvio.length >= 1) {
                         showToast(`No se pudo enviar el correo a ${data.correoEnvio}`, 'bg-danger', 5000);
                     }
                 }
@@ -472,13 +474,16 @@ $('#pagoCredito').click(function () {
 
 $('#sinRegistro').click(function () {
     $('#pagoCredito').prop('disabled', true);
+    setCookie('enviarCorreo', false, 1);
 });
 
 $('#clienteRegistrado').click(function () {
+    setCookie('enviarCorreo', true, 1);
     $('#pagoCredito').prop('disabled', false);
 });
 
 $('#nuevoCliente').click(function () {
+    setCookie('enviarCorreo', true, 1);
     $('#pagoCredito').prop('disabled', false);
 });
 
