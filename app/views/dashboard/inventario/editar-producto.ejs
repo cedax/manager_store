@@ -44,17 +44,30 @@
         $('#editarProducto button[type="submit"]').attr('disabled', true);
 
         // Expresión regular para verificar si hay al menos tres letras de A-Z o a-z
-        var regex = /^(?=(?:[^\d]*\d){0,5}[^\d]*$)[a-zA-Z\d\s]{3,}$/;
+        var regex = /^[a-zA-Z0-9]+$/;
+        let cadena = $('#nombre').val();
 
+        if (regex.test(cadena)) {
+            var numerosEnCadena = cadena.replace(/[^0-9]/g, ''); // Elimina todo excepto los números
+            console.log(numerosEnCadena);
+            if (numerosEnCadena.length >= 5) {
+                $('#crearProducto button[type="submit"]').attr('disabled', false);
+                addToast('No se permiten mas de 5 numeros en el nombre.', 'danger', '¡Error!');
+                return;
+            }
 
-        if (!regex.test($('#nombre').val())) {
-            addToast('Por favor, ingresa un nombre con al menos tres letras y maximo 5 numeros sin caracteres especiales.', 'danger', '¡Error!');
-            $('#editarProducto button[type="submit"]').attr('disabled', false);
+            var letrasEnCadena = cadena.replace(/[^a-zA-Z]/g, '');
+            console.log(letrasEnCadena);
+            if (letrasEnCadena.length < 3) {
+                $('#crearProducto button[type="submit"]').attr('disabled', false);
+                addToast('El nombre debe tener al menos 3 letras.', 'danger', '¡Error!');
+                return;
+            }
+        } else {
+            $('#crearProducto button[type="submit"]').attr('disabled', false);
+            addToast('El nombre no puede tener caracteres especiales.', 'danger', '¡Error!');
             return;
         }
-
-        // Verifica que no tenga mas de 5 numeros a lo largo del string, permite espacios
-
 
         // Verificar que todos los campos esten llenos
         if ($('#nombre').val() == '' || $('#precio').val() == '' || $('#existencia').val() == '') {
