@@ -411,11 +411,13 @@ router.post('/efectivo', async (req, res) => {
 
             try {
                 //const response = await instance.get(`${serverBaseUrl}/dashboard/usuarios/cliente/correo/${client_id}`);
+                
+                console.log('client_id', client_id);
 
                 const userId = client_id;
 
                 const Cliente = require('../../../models/cliente');
-                
+
                 const cliente = await Cliente.findById(userId);
 
                 if (!cliente) {
