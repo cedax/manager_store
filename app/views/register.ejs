@@ -95,16 +95,36 @@
 
 <script>
   document.getElementById('register').addEventListener('submit', function (e) {
+    // Validar Usuario (solo A-Z, a-z y 0-9)
+    var regexUsuario = /^[a-zA-Z0-9]+$/;
+    var usuario = document.getElementById('username').value;
+    if (!regexUsuario.test(usuario)) {
+      alert('El usuario solo debe contener caracteres de A-Z, a-z y 0-9.');
+      e.preventDefault();
+      return;
+    }
+
+    // Validar Correo (formato de correo electrónico)
+    var regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var correo = document.getElementById('email').value;
+    if (!regexCorreo.test(correo)) {
+      alert('Por favor, introduce un correo electrónico válido.');
+      e.preventDefault();
+      return;
+    }
+
+    // Resto del código para verificar el CAPTCHA y enviar el formulario
     var recaptchaResponse = grecaptcha.getResponse();
 
     if (recaptchaResponse.length == 0) {
       alert('Por favor, completa el CAPTCHA.');
       e.preventDefault();
-    }else {
+    } else {
       document.getElementById('recaptchaResponse').value = recaptchaResponse;
       document.forms[0].submit();
     }
   });
 </script>
+
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
