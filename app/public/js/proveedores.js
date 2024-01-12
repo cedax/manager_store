@@ -86,6 +86,17 @@ $(document).ready(function () {
             return;
         }
 
+        // telefono maximo 10 digitos
+        if (nuevoTelefono.length > 10) {
+            showToast('El teléfono debe tener máximo 10 dígitos', 'bg-danger');
+            return;
+        }
+
+        if (!/^[A-Za-z]+$/.test(nuevoNombre)) {
+            showToast('El nombre solo puede contener letras', 'bg-danger');
+            return;
+        }
+
         // Crea un objeto con los nuevos datos del proveedor
         const datosProveedor = {
             nombre: nuevoNombre,
@@ -177,6 +188,18 @@ $(document).ready(function () {
         // Validar que el teléfono tenga al menos 8 dígitos
         if (telefono.length < 8) {
             showToast('El teléfono debe tener al menos 8 dígitos', 'bg-danger');
+            return;
+        }
+
+        // Validar que el teléfono tenga máximo 10 dígitos
+        if (telefono.length > 10) {
+            showToast('El teléfono debe tener máximo 10 dígitos', 'bg-danger');
+            return;
+        }
+
+        // Validar que el nombre solo contenga letras
+        if (!/^[A-Za-z]+$/.test(nombre)) {
+            showToast('El nombre solo puede contener letras', 'bg-danger');
             return;
         }
 
