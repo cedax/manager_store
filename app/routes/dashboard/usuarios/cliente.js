@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 // Ruta para procesar el formulario de registro
 router.post('/registro', async (req, res) => {
     let clienteJson = {};
+    console.log(req.body);
     try {
         const { nombres, apellidos, correo, numero } = req.body;
 
@@ -20,15 +21,31 @@ router.post('/registro', async (req, res) => {
 
         await nuevoCliente.save();
 
-        res.redirect('/dashboard/inventario/ventas?success=1&clienteRegistrado=' + nuevoCliente._id);
+        res.status(200).json({
+            status: true,
+            id: nuevoCliente._id
+        });
     } catch (error) {
-        let clienteJsonString = JSON.stringify(clienteJson);
+        console.error('Error al registrar el cliente:', error);
+        //let clienteJsonString = JSON.stringify(clienteJson);
+
         if (error.code === 11000 && error.keyPattern.correo) {
-            res.redirect('/dashboard/inventario/ventas?error=1&cliente=' + clienteJsonString);
+            res.status(200).json({
+                status: false,
+                error: 'Correo ya registrado'
+            });
         } else if (error.code === 11000 && error.keyPattern.numero) {
-            res.redirect('/dashboard/inventario/ventas?error=2&cliente=' + clienteJsonString);
+            res.status(200).json({
+                status: false,
+                error: 'Número ya registrado'
+            });
         } else {
-            res.redirect('/dashboard/inventario/ventas?error=3&cliente=' + clienteJsonString);
+            res.status(200).json({
+                status: false,
+                error: 'Error interno del servidor',
+                code: error.code
+            });
+
         }
     }
 });

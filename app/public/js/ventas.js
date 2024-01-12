@@ -147,6 +147,14 @@ function generarTicket(efectivo) {
     document.getElementById('iva').textContent = `$${iva}`;
     document.getElementById('total').textContent = `$${total}`;
 
+    if(subtotal < 1){
+        showToast('Ocurrio un error durante la compra, la pagina sera recargada en 5 segundos', 'bg-danger');
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
+        return;
+    }
+
     if(efectivo){
         $('#paymentModal').modal('hide');
         $('#resumenCompraModal').modal('show');

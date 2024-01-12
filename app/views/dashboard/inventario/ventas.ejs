@@ -44,7 +44,8 @@
                         </div>
                     </div>
                     <br>
-                    <center><span style="font-size: 12px; color: #a3a3a3;">El carrito no guarda productos si recargas la pagina</span></center>
+                    <center><span style="font-size: 12px; color: #a3a3a3;">El carrito no guarda productos si recargas la
+                            pagina</span></center>
                 </div>
             </div>
         </div>
@@ -212,7 +213,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="confirmarCorreoModal" tabindex="-1" aria-labelledby="confirmarCorreoModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmarCorreoModal" tabindex="-1" aria-labelledby="confirmarCorreoModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -239,7 +241,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="/dashboard/usuarios/cliente/registro" method="POST">
+                <form id="registroForm" onsubmit="return validarFormulario()">
                     <div class="mb-3">
                         <label for="nombres" class="form-label">Nombres:</label>
                         <input type="text" class="form-control" id="rnombres" name="nombres" required>
@@ -250,16 +252,76 @@
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Correo:</label>
-                        <input type="text" class="form-control" id="rcorreo" name="correo" required>
+                        <input type="email" class="form-control" id="rcorreo" name="correo" required>
                     </div>
                     <div class="mb-3">
                         <label for="numero" class="form-label">Número de teléfono:</label>
-                        <input type="text" class="form-control" id="rnumero" name="numero" required>
+                        <input type="number" class="form-control" id="rnumero" name="numero" required>
                     </div>
                     <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">Registrar Cliente</button>
+                        <button type="button" class="btn btn-primary" onclick="enviarFormulario()">Registrar Cliente</button>
                     </div>
                 </form>
+
+                <script>
+                    function validarFormulario() {
+                        // Validar Nombres y Apellidos (solo letras)
+                        var regexLetrasConEspacios = /^[A-Za-zÁáÉéÍíÓóÚúÜüÑñ\s]+$/;
+                        var nombres = document.getElementById('rnombres').value;
+                        var apellidos = document.getElementById('rapellidos').value;
+                        if (!regexLetrasConEspacios.test(nombres) || !regexLetrasConEspacios.test(apellidos)) {
+                            addToast('Nombres y apellidos deben contener solo letras.', 'danger', '¡Error!');
+                            return false;
+                        }
+
+                        // Validar Correo (formato de correo electrónico)
+                        var regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        var correo = document.getElementById('rcorreo').value;
+                        if (!regexCorreo.test(correo)) {
+                            addToast('Por favor, introduce un correo electrónico válido.', 'danger', '¡Error!');
+                            return false;
+                        }
+
+                        // Validar Número de Teléfono (solo números)
+                        var regexNumeros = /^\d+$/;
+                        var numero = document.getElementById('rnumero').value;
+                        if (!regexNumeros.test(numero)) {
+                            addToast('El número de teléfono debe contener solo números.', 'danger', '¡Error!');
+                            return false;
+                        }
+
+                        // Si todas las validaciones pasan, se envía el formulario
+                        return true;
+                    }
+
+                    function enviarFormulario() {
+                        if (validarFormulario()) {
+                            var formulario = $('#registroForm');
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '/dashboard/usuarios/cliente/registro',
+                                data: formulario.serialize(),
+                                success: function(data) {
+                                    if(data.status){
+                                        addToast('Cliente registrado correctamente.', 'success', '¡Éxito!');
+
+                                        $('#nuevoClienteModal').modal('hide');
+                                        $('#paymentModal').modal('show');
+                                        setCookie('clienteId', data.id, 1);
+                                        let pagoCredito = getCookie("clienteId");
+                                        console.log(pagoCredito);
+                                    }else {
+                                        addToast(data.error, 'danger', '¡Error!');
+                                    }
+                                },
+                                error: function(error) {
+                                    addToast('Ocurrió un error al enviar el formulario.', 'danger', '¡Error!');
+                                }
+                            });
+                        }
+                    }
+                </script>
             </div>
         </div>
     </div>
