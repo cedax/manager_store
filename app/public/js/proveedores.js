@@ -81,8 +81,8 @@ $(document).ready(function () {
             return; 
         }
 
-        if (nuevoTelefono.length < 8) {
-            showToast('El teléfono debe tener al menos 8 dígitos', 'bg-danger');
+        if (nuevoTelefono.length < 10) {
+            showToast('El teléfono debe tener al menos 10 dígitos', 'bg-danger');
             return;
         }
 
@@ -186,8 +186,8 @@ $(document).ready(function () {
         }
 
         // Validar que el teléfono tenga al menos 8 dígitos
-        if (telefono.length < 8) {
-            showToast('El teléfono debe tener al menos 8 dígitos', 'bg-danger');
+        if (telefono.length < 10) {
+            showToast('El teléfono debe tener al menos 10 dígitos', 'bg-danger');
             return;
         }
 

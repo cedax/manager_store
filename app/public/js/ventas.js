@@ -181,6 +181,17 @@ $(document).ready(function () {
         const correo = $('#bcorreo').val();
         const telefono = $('#btelefono').val();
 
+        if (telefono.length < 10) {
+            showToast('El teléfono debe tener al menos 10 dígitos', 'bg-danger');
+            return;
+        }
+
+        // telefono maximo 10 digitos
+        if (telefono.length > 10) {
+            showToast('El teléfono debe tener máximo 10 dígitos', 'bg-danger');
+            return;
+        }
+
         // Envía una solicitud al servidor para buscar al cliente
         $.ajax({
             method: 'POST', // Utiliza el método adecuado (GET, POST, etc.) para tu servidor
