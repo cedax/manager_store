@@ -141,7 +141,7 @@
                 <form>
                     <div class="mb-3">
                         <label for="telefono">Teléfono:</label>
-                        <input type="text" class="form-control" id="btelefono" placeholder="Teléfono del cliente">
+                        <input type="text" class="form-control" id="btelefono" placeholder="Teléfono del cliente" maxlength="10" minlength="10">
                     </div>
                     <button type="submit" class="btn btn-primary" id="buscarClienteBtn">Buscar</button>
                 </form>
@@ -256,7 +256,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="numero" class="form-label">Número de teléfono:</label>
-                        <input type="number" class="form-control" id="rnumero" name="numero" maxlength="10" oninput="validarNumero(this)" required>
+                        <input type="number" class="form-control" id="rnumero" name="numero" maxlength="10" minlength="10" oninput="validarNumero(this)" required>
                     </div>
                     <div class="mb-3">
                         <button type="button" class="btn btn-primary" onclick="enviarFormulario()">Registrar Cliente</button>
