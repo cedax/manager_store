@@ -290,6 +290,12 @@
                             return false;
                         }
 
+                        // El numero no puede ser de menos de 10 numeros
+                        if (numero.length < 10) {
+                            addToast('El número de teléfono debe contener 10 dígitos.', 'danger', '¡Error!');
+                            return false;
+                        }
+
                         // Si todas las validaciones pasan, se envía el formulario
                         return true;
                     }
